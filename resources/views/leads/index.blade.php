@@ -1,20 +1,18 @@
 <x-app-layout>
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Leads</h1>
-        <a href="{{ route('leads.create') }}" 
+        <a href="{{ route('leads.create') }}"
            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
             + Tambah Lead
         </a>
     </div>
 
-    {{-- Alert sukses --}}
     @if(session('success'))
         <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
             {{ session('success') }}
         </div>
     @endif
 
-    {{-- Tabel --}}
     <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         <table class="w-full text-sm">
             <thead class="bg-gray-50 border-b">
@@ -55,17 +53,17 @@
                         {{ $lead->value ? 'Rp ' . number_format($lead->value, 0, ',', '.') : '-' }}
                     </td>
                     <td class="px-4 py-3">
-                       <div class="flex gap-1">
+                        <div class="flex gap-1">
                             <a href="{{ route('leads.show', $lead) }}"
-                            class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded text-xs font-medium hover:bg-blue-100">
+                               class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded text-xs font-medium hover:bg-blue-100">
                                 Lihat
                             </a>
                             <a href="{{ route('leads.edit', $lead) }}"
-                            class="bg-yellow-50 text-yellow-600 border border-yellow-200 px-3 py-1 rounded text-xs font-medium hover:bg-yellow-100">
+                               class="bg-yellow-50 text-yellow-600 border border-yellow-200 px-3 py-1 rounded text-xs font-medium hover:bg-yellow-100">
                                 Edit
                             </a>
                             <form method="POST" action="{{ route('leads.destroy', $lead) }}"
-                                onsubmit="return confirm('Hapus lead ini?')">
+                                  onsubmit="return confirm('Hapus lead ini?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit"
@@ -86,7 +84,6 @@
             </tbody>
         </table>
 
-        {{-- Pagination --}}
         @if($leads->hasPages())
             <div class="px-4 py-3 border-t">
                 {{ $leads->links() }}
