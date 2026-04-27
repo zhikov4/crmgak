@@ -1,0 +1,66 @@
+<div class="w-64 bg-gray-900 text-white flex flex-col h-full">
+
+    {{-- Logo --}}
+    <div class="p-4 border-b border-gray-700">
+        <h1 class="text-xl font-bold text-white">GAK CRM</h1>
+        <p class="text-xs text-gray-400">AI Marketing Suite</p>
+    </div>
+
+    {{-- Menu --}}
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
+
+        <a href="/dashboard" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('dashboard') ? 'bg-gray-700' : '' }}">
+            <span>📊</span><span class="text-sm">Dashboard</span>
+        </a>
+
+        <a href="/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('leads*') ? 'bg-gray-700' : '' }}">
+            <span>👥</span><span class="text-sm">Leads</span>
+        </a>
+
+        <a href="/pipeline" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('pipeline*') ? 'bg-gray-700' : '' }}">
+            <span>🔀</span><span class="text-sm">Pipeline</span>
+        </a>
+
+        <a href="/projects" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('projects*') ? 'bg-gray-700' : '' }}">
+            <span>📁</span><span class="text-sm">Proyek</span>
+        </a>
+
+        <a href="/activities" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('activities*') ? 'bg-gray-700' : '' }}">
+            <span>📅</span><span class="text-sm">Aktivitas</span>
+        </a>
+
+        <a href="/messages" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('messages*') ? 'bg-gray-700' : '' }}">
+            <span>💬</span><span class="text-sm">WhatsApp Inbox</span>
+            <span class="ml-auto text-xs bg-gray-600 text-gray-300 px-2 py-0.5 rounded-full">Soon</span>
+        </a>
+
+        <a href="/analytics" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('analytics*') ? 'bg-gray-700' : '' }}">
+            <span>📈</span><span class="text-sm">Analytics</span>
+        </a>
+
+        <a href="/reports" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('reports*') ? 'bg-gray-700' : '' }}">
+            <span>📄</span><span class="text-sm">Laporan</span>
+        </a>
+
+    </nav>
+
+    {{-- User Info --}}
+    <div class="p-4 border-t border-gray-700">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium truncate">{{ auth()->user()->name }}</p>
+                <p class="text-xs text-gray-400 truncate">{{ auth()->user()->email }}</p>
+            </div>
+        </div>
+        <form method="POST" action="{{ route('logout') }}" class="mt-3">
+            @csrf
+            <button type="submit" class="w-full text-left text-xs text-gray-400 hover:text-white px-3 py-1 rounded hover:bg-gray-700">
+                Logout
+            </button>
+        </form>
+    </div>
+
+</div>
