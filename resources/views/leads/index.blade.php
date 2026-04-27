@@ -55,16 +55,23 @@
                         {{ $lead->value ? 'Rp ' . number_format($lead->value, 0, ',', '.') : '-' }}
                     </td>
                     <td class="px-4 py-3">
-                        <div class="flex gap-2">
-                            <a href="{{ route('leads.show', $lead) }}" 
-                               class="text-blue-600 hover:underline text-xs">Lihat</a>
-                            <a href="{{ route('leads.edit', $lead) }}" 
-                               class="text-yellow-600 hover:underline text-xs">Edit</a>
-                            <form method="POST" action="{{ route('leads.destroy', $lead) }}" 
-                                  onsubmit="return confirm('Hapus lead ini?')">
+                       <div class="flex gap-1">
+                            <a href="{{ route('leads.show', $lead) }}"
+                            class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded text-xs font-medium hover:bg-blue-100">
+                                Lihat
+                            </a>
+                            <a href="{{ route('leads.edit', $lead) }}"
+                            class="bg-yellow-50 text-yellow-600 border border-yellow-200 px-3 py-1 rounded text-xs font-medium hover:bg-yellow-100">
+                                Edit
+                            </a>
+                            <form method="POST" action="{{ route('leads.destroy', $lead) }}"
+                                onsubmit="return confirm('Hapus lead ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:underline text-xs">Hapus</button>
+                                <button type="submit"
+                                    class="bg-red-50 text-red-600 border border-red-200 px-3 py-1 rounded text-xs font-medium hover:bg-red-100">
+                                    Hapus
+                                </button>
                             </form>
                         </div>
                     </td>
