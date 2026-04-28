@@ -1,26 +1,110 @@
 <x-app-layout>
-    <x-slot name="header">Dashboard</x-slot>
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+        <p class="text-sm text-gray-400 mt-1">Selamat datang, {{ auth()->user()->name }}!</p>
+    </div>
 
+    {{-- KPI Cards --}}
     <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-500">
             <p class="text-sm text-gray-500">Total Leads</p>
-            <p class="text-2xl font-bold text-gray-800">0</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ $totalLeads }}</p>
+            <p class="text-xs text-blue-500 mt-1">{{ $newLeads }} baru bulan ini</p>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-yellow-500">
             <p class="text-sm text-gray-500">Pipeline Aktif</p>
-            <p class="text-2xl font-bold text-gray-800">0</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ $activePipelines }}</p>
+            <p class="text-xs text-yellow-500 mt-1">Rp {{ number_format($pipelineValue/1000000, 1) }}jt total nilai</p>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-500">
             <p class="text-sm text-gray-500">Proyek Berjalan</p>
-            <p class="text-2xl font-bold text-gray-800">0</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ $activeProjects }}</p>
+            <p class="text-xs text-purple-500 mt-1">{{ $completedProjects }} selesai</p>
         </div>
-        <div class="bg-white rounded-lg p-4 shadow-sm">
+        <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-500">
             <p class="text-sm text-gray-500">Deal Won</p>
-            <p class="text-2xl font-bold text-gray-800">Rp 0</p>
+            <p class="text-3xl font-bold text-gray-800 mt-1">{{ $wonDeals }}</p>
+            <p class="text-xs text-green-500 mt-1">Rp {{ number_format($wonValue/1000000, 1) }}jt total</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg p-6 shadow-sm">
-        <p class="text-gray-500 text-center py-8">Dashboard GAK CRM siap dikembangkan 🚀</p>
+    <div class="grid grid-cols-3 gap-6">
+
+        {{-- Leads Terbaru --}}
+        <div class="col-span-2 bg-white rounded-lg shadow-sm">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="font-semibold text-gray-700">Leads Terbaru</h2>
+                <a href="{{ route('leads.index') }}" class="text-xs text-blue-500 hover:underline">Lihat semua</a>
+            </div>
+            <div class="divide-y">
+                @forelse($recentLeads as $lead)
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div>
+                        <p class="text-sm font-medium text-gray-800">{{ $lead->name }}</p>
+                        <p class="text-xs text-gray-400">{{ $lead->company ?? $lead->source ?? '-' }}</p>
+                    </div>
+                    <div class="text-right">
+                        @php
+                            $colors = [
+                                'new'         => 'bg-blue-100 text-blue-700',
+                                'contacted'   => 'bg-yellow-100 text-yellow-700',
+                                'qualified'   => 'bg-purple-100 text-purple-700',
+                                'proposal'    => 'bg-orange-100 text-orange-700',
+                                'negotiation' => 'bg-pink-100 text-pink-700',
+                                'won'         => 'bg-green-100 text-green-700',
+                                'lost'        => 'bg-red-100 text-red-700',
+                            ];
+                        @endphp
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$lead->status] ?? 'bg-gray-100 text-gray-700' }}">
+                            {{ ucfirst($lead->status) }}
+                        </span>
+                        <p class="text-xs text-gray-400 mt-1">{{ $lead->created_at->diffForHumans() }}</p>
+                    </div>
+                </div>
+                @empty
+                <div class="px-4 py-6 text-center text-gray-400 text-sm">
+                    Belum ada leads. <a href="{{ route('leads.create') }}" class="text-blue-500 hover:underline">Tambah sekarang</a>
+                </div>
+                @endforelse
+            </div>
+        </div>
+
+        {{-- Aktivitas Mendatang --}}
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="flex items-center justify-between p-4 border-b">
+                <h2 class="font-semibold text-gray-700">Aktivitas Mendatang</h2>
+                <a href="{{ route('activities.index') }}" class="text-xs text-blue-500 hover:underline">Lihat semua</a>
+            </div>
+            <div class="divide-y">
+                @forelse($upcomingActivities as $activity)
+                @php
+                    $typeIcons = [
+                        'call'      => '📞',
+                        'meeting'   => '🤝',
+                        'email'     => '📧',
+                        'whatsapp'  => '💬',
+                        'follow_up' => '🔔',
+                        'note'      => '📝',
+                    ];
+                @endphp
+                <div class="px-4 py-3">
+                    <div class="flex items-start gap-2">
+                        <span class="text-lg">{{ $typeIcons[$activity->type] ?? '📌' }}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800 truncate">{{ $activity->title }}</p>
+                            <p class="text-xs text-gray-400">
+                                {{ $activity->scheduled_at ? $activity->scheduled_at->format('d M, H:i') : '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                @empty
+                <div class="px-4 py-6 text-center text-gray-400 text-sm">
+                    Tidak ada aktivitas mendatang
+                </div>
+                @endforelse
+            </div>
+        </div>
+
     </div>
 </x-app-layout>

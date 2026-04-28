@@ -11,8 +11,28 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->group(function () {
+
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $totalLeads         = \App\Models\Lead::count();
+        $newLeads           = \App\Models\Lead::whereMonth('created_at', now()->month)->count();
+        $activePipelines    = \App\Models\Pipeline::whereNotIn('stage', ['won','lost'])->count();
+        $pipelineValue      = \App\Models\Pipeline::whereNotIn('stage', ['won','lost'])->sum('value');
+        $activeProjects     = \App\Models\Project::where('status', 'in_progress')->count();
+        $completedProjects  = \App\Models\Project::where('status', 'completed')->count();
+        $wonDeals           = \App\Models\Pipeline::where('stage', 'won')->count();
+        $wonValue           = \App\Models\Pipeline::where('stage', 'won')->sum('value');
+        $recentLeads        = \App\Models\Lead::latest()->take(5)->get();
+        $upcomingActivities = \App\Models\Activity::where('status', 'planned')
+            ->where('scheduled_at', '>=', now())
+            ->orderBy('scheduled_at')
+            ->take(5)
+            ->get();
+
+        return view('dashboard', compact(
+            'totalLeads', 'newLeads', 'activePipelines', 'pipelineValue',
+            'activeProjects', 'completedProjects', 'wonDeals', 'wonValue',
+            'recentLeads', 'upcomingActivities'
+        ));
     })->name('dashboard');
 
     Route::resource('leads', LeadController::class);
@@ -28,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
     Route::patch('/activities/{activity}/done', [ActivityController::class, 'markDone'])->name('activities.done');
+
 });
 
 require __DIR__.'/auth.php';
