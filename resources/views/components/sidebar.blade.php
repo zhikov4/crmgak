@@ -38,6 +38,10 @@
             <span>📈</span><span class="text-sm">Analytics</span>
         </a>
 
+        <a href="/import" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('import*') ? 'bg-gray-700' : '' }}">
+            <span>📥</span><span class="text-sm">Import Excel</span>
+        </a>
+
         <a href="/reports" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('reports*') ? 'bg-gray-700' : '' }}">
             <span>📄</span><span class="text-sm">Laporan</span>
         </a>

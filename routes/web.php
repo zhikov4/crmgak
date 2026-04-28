@@ -5,6 +5,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ImportController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -48,6 +49,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/activities', [ActivityController::class, 'store'])->name('activities.store');
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
     Route::patch('/activities/{activity}/done', [ActivityController::class, 'markDone'])->name('activities.done');
+
+    Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+    Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
+    Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
 
 });
 
