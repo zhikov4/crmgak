@@ -17,7 +17,7 @@
             $title = $titles[$segment] ?? 'GAK CRM';
         @endphp
         <h2 class="text-sm font-semibold text-gray-800">{{ $title }}</h2>
-        <p class="text-xs text-gray-400">{{ now()->isoFormat('dddd, D MMMM Y') }}</p>
+        <p class="text-xs text-gray-400">{{ now()->locale('id')->isoFormat('dddd, D MMMM Y') }}</p>
     </div>
 
     {{-- Kanan: Info User --}}

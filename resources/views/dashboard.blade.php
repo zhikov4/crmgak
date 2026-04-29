@@ -129,18 +129,22 @@
         const leadsPerSource = @json($leadsPerSource);
 
         // Chart 1: Leads per Bulan (Bar)
+        // Chart 1: Leads per Bulan (Line)
         const ctx1 = document.getElementById('leadsChart').getContext('2d');
         new Chart(ctx1, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: leadsPerMonth.map(d => d.month),
                 datasets: [{
                     label: 'Jumlah Leads',
                     data: leadsPerMonth.map(d => d.total),
-                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
                     borderColor: 'rgba(59, 130, 246, 1)',
-                    borderWidth: 1,
-                    borderRadius: 4,
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                    pointRadius: 4,
+                    tension: 0,
+                    fill: true,
                 }]
             },
             options: {

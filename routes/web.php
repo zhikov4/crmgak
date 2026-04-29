@@ -62,6 +62,30 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/activities/{activity}', [ActivityController::class, 'destroy'])->name('activities.destroy');
     Route::patch('/activities/{activity}/done', [ActivityController::class, 'markDone'])->name('activities.done');
 
+    Route::get('/analytics', function () {
+        $totalLeads      = \App\Models\Lead::count();
+        $totalPipelineValue = \App\Models\Pipeline::sum('value');
+        $wonLeads        = \App\Models\Lead::where('status', 'won')->count();
+        $conversionRate  = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
+        $avgDealValue    = \App\Models\Pipeline::where('stage', 'won')->avg('value') ?? 0;
+
+        $leadsPerStatus  = \App\Models\Lead::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
+
+        $leadsPerSource  = \App\Models\Lead::selectRaw('source, COUNT(*) as total')
+            ->groupBy('source')->orderByRaw('COUNT(*) DESC')->take(6)->get();
+
+        $pipelinePerStage = \App\Models\Pipeline::selectRaw('stage, SUM(value) as total')
+            ->groupBy('stage')->orderByRaw('SUM(value) DESC')->get();
+
+        $projectsPerStatus = \App\Models\Project::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')->get();
+
+        return view('analytics', compact(
+            'totalLeads', 'totalPipelineValue', 'conversionRate', 'avgDealValue',
+            'leadsPerStatus', 'leadsPerSource', 'pipelinePerStage', 'projectsPerStatus'
+        ));
+    })->name('analytics');
     Route::get('/import', [ImportController::class, 'index'])->name('import.index');
     Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
