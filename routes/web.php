@@ -29,10 +29,22 @@ Route::middleware(['auth'])->group(function () {
             ->take(5)
             ->get();
 
+        $leadsPerMonth = \App\Models\Lead::selectRaw("TO_CHAR(created_at, 'Mon YY') as month, COUNT(*) as total")
+            ->where('created_at', '>=', now()->subMonths(6))
+            ->groupByRaw("TO_CHAR(created_at, 'Mon YY')")
+            ->orderByRaw("MIN(created_at)")
+            ->get();
+
+        $leadsPerSource = \App\Models\Lead::selectRaw('source, COUNT(*) as total')
+            ->groupBy('source')
+            ->orderByRaw('COUNT(*) DESC')
+            ->take(7)
+            ->get();
+
         return view('dashboard', compact(
             'totalLeads', 'newLeads', 'activePipelines', 'pipelineValue',
             'activeProjects', 'completedProjects', 'wonDeals', 'wonValue',
-            'recentLeads', 'upcomingActivities'
+            'recentLeads', 'upcomingActivities', 'leadsPerMonth', 'leadsPerSource'
         ));
     })->name('dashboard');
 

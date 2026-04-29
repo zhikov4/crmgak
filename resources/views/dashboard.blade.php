@@ -28,8 +28,22 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-3 gap-6">
+    {{-- Charts Row --}}
+    <div class="grid grid-cols-3 gap-6 mb-6">
+        {{-- Leads per Bulan --}}
+        <div class="col-span-2 bg-white rounded-lg shadow-sm p-4">
+            <h2 class="font-semibold text-gray-700 mb-4">Leads per Bulan</h2>
+            <canvas id="leadsChart" height="120"></canvas>
+        </div>
 
+        {{-- Leads per Sumber --}}
+        <div class="bg-white rounded-lg shadow-sm p-4">
+            <h2 class="font-semibold text-gray-700 mb-4">Leads per Sumber</h2>
+            <canvas id="sourceChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-6">
         {{-- Leads Terbaru --}}
         <div class="col-span-2 bg-white rounded-lg shadow-sm">
             <div class="flex items-center justify-between p-4 border-b">
@@ -63,7 +77,7 @@
                 </div>
                 @empty
                 <div class="px-4 py-6 text-center text-gray-400 text-sm">
-                    Belum ada leads. <a href="{{ route('leads.create') }}" class="text-blue-500 hover:underline">Tambah sekarang</a>
+                    Belum ada leads.
                 </div>
                 @endforelse
             </div>
@@ -105,6 +119,56 @@
                 @endforelse
             </div>
         </div>
-
     </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Data dari PHP
+        const leadsPerMonth = @json($leadsPerMonth);
+        const leadsPerSource = @json($leadsPerSource);
+
+        // Chart 1: Leads per Bulan (Bar)
+        const ctx1 = document.getElementById('leadsChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: leadsPerMonth.map(d => d.month),
+                datasets: [{
+                    label: 'Jumlah Leads',
+                    data: leadsPerMonth.map(d => d.total),
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+
+        // Chart 2: Leads per Sumber (Donut)
+        const ctx2 = document.getElementById('sourceChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: leadsPerSource.map(d => d.source ?? 'Lainnya'),
+                datasets: [{
+                    data: leadsPerSource.map(d => d.total),
+                    backgroundColor: [
+                        '#3B82F6','#F59E0B','#8B5CF6','#10B981','#EF4444','#EC4899','#6366F1'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+            }
+        });
+
+    });
+    </script>
 </x-app-layout>
