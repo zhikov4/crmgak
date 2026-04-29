@@ -7,6 +7,46 @@
         </a>
     </div>
 
+    {{-- Search & Filter --}}
+    <form method="GET" action="{{ route('leads.index') }}" class="bg-white rounded-lg shadow-sm p-4 mb-4">
+        <div class="flex gap-3 items-end">
+            <div class="flex-1">
+                <label class="block text-xs text-gray-500 mb-1">Cari</label>
+                <input type="text" name="search" value="{{ request('search') }}"
+                    placeholder="Nama, perusahaan, phone, email..."
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Status</label>
+                <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Semua Status</option>
+                    @foreach(['new','contacted','qualified','proposal','negotiation','won','lost'] as $st)
+                        <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ ucfirst($st) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Sumber</label>
+                <select name="source" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Semua Sumber</option>
+                    @foreach(['instagram','facebook','google','referral','whatsapp','website','other'] as $src)
+                        <option value="{{ $src }}" {{ request('source') == $src ? 'selected' : '' }}>{{ ucfirst($src) }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
+                    Cari
+                </button>
+                @if(request('search') || request('status') || request('source'))
+                    <a href="{{ route('leads.index') }}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm">
+                        Reset
+                    </a>
+                @endif
+            </div>
+        </div>
+    </form>
+
     @if(session('success'))
         <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
             {{ session('success') }}
