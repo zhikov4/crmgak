@@ -14,7 +14,14 @@
         </a>
 
         <a href="/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('leads*') ? 'bg-gray-700' : '' }}">
-            <span>👥</span><span class="text-sm">Leads</span>
+            <span>👥</span>
+            <span class="text-sm">Leads</span>
+            @php $newLeadsCount = \App\Models\Lead::where('status', 'new')->count(); @endphp
+            @if($newLeadsCount > 0)
+                <span class="ml-auto bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {{ $newLeadsCount }}
+                </span>
+            @endif
         </a>
 
         <a href="/pipeline" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('pipeline*') ? 'bg-gray-700' : '' }}">
@@ -41,7 +48,9 @@
         <a href="/import" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('import*') ? 'bg-gray-700' : '' }}">
             <span>📥</span><span class="text-sm">Import Excel</span>
         </a>
-
+        <a href="/products-list" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('products-list*') ? 'bg-gray-700' : '' }}">
+            <span>🏷️</span><span class="text-sm">Produk</span>
+        </a>
         <a href="/reports" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('reports*') ? 'bg-gray-700' : '' }}">
             <span>📄</span><span class="text-sm">Laporan</span>
         </a>

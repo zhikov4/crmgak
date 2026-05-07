@@ -13,9 +13,10 @@
                     Tampilkan
                 </button>
             </form>
-            <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 flex items-center gap-2">
-                🖨️ Print
-            </button>
+            <a href="{{ route('reports.print', ['bulan' => $bulan]) }}" target="_blank"
+            class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 flex items-center gap-2">
+                🖨️ Print / PDF
+            </a>
         </div>
     </div>
 

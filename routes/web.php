@@ -6,6 +6,7 @@ use App\Http\Controllers\PipelineController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\ProductController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -135,10 +136,56 @@ Route::middleware(['auth'])->group(function () {
             'recentActivities', 'projects', 'leadsPerMonth'
         ));
     })->name('reports');
+    
+        Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+        Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
+        Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
+        Route::get('/reports/print', function () {
+        $bulan = request('bulan', now()->format('Y-m'));
+        $periode = \Carbon\Carbon::createFromFormat('Y-m', $bulan);
+
+        $totalLeads         = \App\Models\Lead::count();
+        $newLeads           = \App\Models\Lead::whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
+        $wonLeads           = \App\Models\Lead::where('status', 'won')->count();
+        $lostLeads          = \App\Models\Lead::where('status', 'lost')->count();
+        $totalPipelineValue = \App\Models\Pipeline::sum('value');
+        $wonValue           = \App\Models\Pipeline::where('stage', 'won')->sum('value');
+        $activeProjects     = \App\Models\Project::whereIn('status', ['planning','in_progress'])->count();
+        $completedProjects  = \App\Models\Project::where('status', 'completed')->count();
+        $conversionRate     = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
+
+        $leadsByStatus = \App\Models\Lead::selectRaw('status, COUNT(*) as total, SUM(value) as nilai')
+            ->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
+
+        $leadsBySource = \App\Models\Lead::selectRaw('source, COUNT(*) as total')
+            ->groupBy('source')->orderByRaw('COUNT(*) DESC')->get();
+
+        $activePipelines = \App\Models\Pipeline::with('lead')
+            ->whereNotIn('stage', ['won','lost'])
+            ->orderBy('value', 'desc')
+            ->take(10)->get();
+
+        $projects = \App\Models\Project::with('lead')
+            ->orderBy('created_at', 'desc')
+            ->take(10)->get();
+
+        return view('reports-print', compact(
+            'bulan', 'periode', 'totalLeads', 'newLeads', 'wonLeads', 'lostLeads',
+            'totalPipelineValue', 'wonValue', 'activeProjects', 'completedProjects',
+            'conversionRate', 'leadsByStatus', 'leadsBySource', 'activePipelines', 'projects'
+        ));
+    })->name('reports.print');
+
     Route::get('/import', [ImportController::class, 'index'])->name('import.index');
     Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
 
-});
+    // Tambahkan di sini
+    Route::get('/products-list', [ProductController::class, 'index'])->name('products.index');
+    Route::post('/products-list', [ProductController::class, 'store'])->name('products.store');
+    Route::put('/products-list/{product}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('/products-list/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+});  
 
 require __DIR__.'/auth.php';

@@ -22,6 +22,8 @@ class Lead extends Model
         'assigned_to',
         'created_by',
         'last_contacted_at',
+        'product_id',
+        'interest_notes',
     ];
 
     protected $casts = [
@@ -37,5 +39,10 @@ class Lead extends Model
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }
