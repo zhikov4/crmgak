@@ -7,31 +7,49 @@ use Illuminate\Http\Request;
 
 class LeadController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = Lead::with('assignedTo');
+ public function index(Request $request)
+{
+    $user  = auth()->user();
+    $query = Lead::with('assignedTo', 'product');
 
-        if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'ilike', '%'.$request->search.'%')
-                ->orWhere('company', 'ilike', '%'.$request->search.'%')
-                ->orWhere('phone', 'ilike', '%'.$request->search.'%')
-                ->orWhere('email', 'ilike', '%'.$request->search.'%');
-            });
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('source')) {
-            $query->where('source', $request->source);
-        }
-
-        $leads = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
-
-        return view('leads.index', compact('leads'));
+    // Filter berdasarkan role
+    if ($user->isStaff()) {
+        // Staff hanya lihat leads milik sendiri
+        $query->where('assigned_to', $user->id);
+    } elseif ($user->isManajer()) {
+        // Manajer lihat leads milik dia + semua staff di bawahnya
+        $staffIds = $user->staffMembers()->pluck('id')->toArray();
+        $staffIds[] = $user->id;
+        $query->whereIn('assigned_to', $staffIds);
     }
+    // Direktur lihat semua — tidak perlu filter
+
+    if ($request->filled('search')) {
+        $query->where(function($q) use ($request) {
+            $q->where('name', 'ilike', '%'.$request->search.'%')
+              ->orWhere('company', 'ilike', '%'.$request->search.'%')
+              ->orWhere('phone', 'ilike', '%'.$request->search.'%')
+              ->orWhere('email', 'ilike', '%'.$request->search.'%');
+        });
+    }
+
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    if ($request->filled('source')) {
+        $query->where('source', $request->source);
+    }
+
+    if ($request->filled('product_id')) {
+        $query->where('product_id', $request->product_id);
+    }
+
+    $leads    = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
+    $products = \App\Models\Product::where('is_active', true)->orderBy('name')->get();
+
+    return view('leads.index', compact('leads', 'products'));
+}
 
     public function create()
     {
