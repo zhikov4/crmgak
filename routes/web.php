@@ -8,6 +8,7 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\TeamViewController; 
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -178,6 +179,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
+
+    // Team View - hanya direktur dan manajer
+    Route::middleware(['role:direktur,manajer'])->group(function () {
+        Route::get('/team', [TeamViewController::class, 'index'])->name('team.index');
     });
 
 });

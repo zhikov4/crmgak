@@ -53,6 +53,12 @@
             <span>👤</span><span class="text-sm">Manajemen User</span>
         </a>
         @endif
+
+        @if(auth()->user()->isDirektur() || auth()->user()->isManajer())
+        <a href="/team" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('team*') ? 'bg-gray-700' : '' }}">
+            <span>👥</span><span class="text-sm">Team View</span>
+        </a>
+        @endif
         <a href="/products-list" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('products-list*') ? 'bg-gray-700' : '' }}">
             <span>🏷️</span><span class="text-sm">Produk</span>
         </a>
