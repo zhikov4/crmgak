@@ -57,12 +57,23 @@ class LeadController extends Controller
         $validated['assigned_to'] = auth()->id();
 
         // Format wa_phone otomatis dari phone
+        // Format wa_phone dengan kode negara
         if (!empty($validated['phone'])) {
             $phone = preg_replace('/\D/', '', $validated['phone']);
+            $code  = preg_replace('/\D/', '', $request->input('phone_code', '62'));
+
+            // Hapus 0 di depan jika ada
             if (str_starts_with($phone, '0')) {
-                $phone = '62' . substr($phone, 1);
+                $phone = substr($phone, 1);
             }
-            $validated['wa_phone'] = $phone;
+
+            // Hapus kode negara jika sudah ada di depan
+            if (str_starts_with($phone, $code)) {
+                $phone = substr($phone, strlen($code));
+            }
+
+            $validated['wa_phone'] = $code . $phone;
+            $validated['phone']    = $code . $phone;
         }
 
         Lead::create($validated);

@@ -30,9 +30,21 @@ class LeadsImport implements ToCollection, WithHeadingRow
             $waPhone = null;
             if ($phone) {
                 $clean = preg_replace('/\D/', '', $phone);
+
+                // Berawalan 0 -> ganti dengan 62
                 if (str_starts_with($clean, '0')) {
                     $clean = '62' . substr($clean, 1);
                 }
+                // Berawalan 8 -> tambah 62 di depan
+                elseif (str_starts_with($clean, '8')) {
+                    $clean = '62' . $clean;
+                }
+                // Sudah ada 62 di depan -> biarkan
+                elseif (str_starts_with($clean, '62')) {
+                    // sudah benar
+                }
+                // Kode negara lain -> biarkan
+                
                 $waPhone = $clean;
             }
 

@@ -19,9 +19,28 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
-                    <input type="text" name="phone" value="{{ old('phone', $lead->phone) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
+                    <div class="flex gap-2">
+                        <select name="phone_code" class="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32">
+                            <option value="62" {{ old('phone_code', '62') == '62' ? 'selected' : '' }}>🇮🇩 +62</option>
+                            <option value="60" {{ old('phone_code') == '60' ? 'selected' : '' }}>🇲🇾 +60</option>
+                            <option value="65" {{ old('phone_code') == '65' ? 'selected' : '' }}>🇸🇬 +65</option>
+                            <option value="63" {{ old('phone_code') == '63' ? 'selected' : '' }}>🇵🇭 +63</option>
+                            <option value="66" {{ old('phone_code') == '66' ? 'selected' : '' }}>🇹🇭 +66</option>
+                            <option value="84" {{ old('phone_code') == '84' ? 'selected' : '' }}>🇻🇳 +84</option>
+                            <option value="95" {{ old('phone_code') == '95' ? 'selected' : '' }}>🇲🇲 +95</option>
+                            <option value="61" {{ old('phone_code') == '61' ? 'selected' : '' }}>🇦🇺 +61</option>
+                            <option value="1"  {{ old('phone_code') == '1'  ? 'selected' : '' }}>🇺🇸 +1</option>
+                            <option value="44" {{ old('phone_code') == '44' ? 'selected' : '' }}>🇬🇧 +44</option>
+                            <option value="91" {{ old('phone_code') == '91' ? 'selected' : '' }}>🇮🇳 +91</option>
+                            <option value="86" {{ old('phone_code') == '86' ? 'selected' : '' }}>🇨🇳 +86</option>
+                            <option value="81" {{ old('phone_code') == '81' ? 'selected' : '' }}>🇯🇵 +81</option>
+                            <option value="82" {{ old('phone_code') == '82' ? 'selected' : '' }}>🇰🇷 +82</option>
+                        </select>
+                        <input type="text" name="phone" value="{{ old('phone', $lead->phone) }}"
+                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="8123456789">
+                    </div>
                 </div>
 
                 <div>
