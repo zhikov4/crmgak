@@ -8,7 +8,6 @@
         <form method="POST" action="{{ route('leads.update', $lead) }}">
             @csrf
             @method('PUT')
-
             <div class="grid grid-cols-2 gap-4">
 
                 <div class="col-span-2">
@@ -19,16 +18,15 @@
                 </div>
 
                 <div>
-    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
                     <div class="flex gap-2">
                         <select name="phone_code" class="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-32">
-                            <option value="62" {{ old('phone_code', '62') == '62' ? 'selected' : '' }}>🇮🇩 +62</option>
+                            <option value="62" {{ old('phone_code','62') == '62' ? 'selected' : '' }}>🇮🇩 +62</option>
                             <option value="60" {{ old('phone_code') == '60' ? 'selected' : '' }}>🇲🇾 +60</option>
                             <option value="65" {{ old('phone_code') == '65' ? 'selected' : '' }}>🇸🇬 +65</option>
                             <option value="63" {{ old('phone_code') == '63' ? 'selected' : '' }}>🇵🇭 +63</option>
                             <option value="66" {{ old('phone_code') == '66' ? 'selected' : '' }}>🇹🇭 +66</option>
                             <option value="84" {{ old('phone_code') == '84' ? 'selected' : '' }}>🇻🇳 +84</option>
-                            <option value="95" {{ old('phone_code') == '95' ? 'selected' : '' }}>🇲🇲 +95</option>
                             <option value="61" {{ old('phone_code') == '61' ? 'selected' : '' }}>🇦🇺 +61</option>
                             <option value="1"  {{ old('phone_code') == '1'  ? 'selected' : '' }}>🇺🇸 +1</option>
                             <option value="44" {{ old('phone_code') == '44' ? 'selected' : '' }}>🇬🇧 +44</option>
@@ -96,6 +94,25 @@
                         class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
 
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ketertarikan Produk</label>
+                    <select name="product_id" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Pilih Produk --</option>
+                        @foreach(\App\Models\Product::where('is_active', true)->orderBy('name')->get() as $product)
+                            <option value="{{ $product->id }}" {{ old('product_id', $lead->product_id) == $product->id ? 'selected' : '' }}>
+                                {{ $product->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan Ketertarikan</label>
+                    <input type="text" name="interest_notes" value="{{ old('interest_notes', $lead->interest_notes) }}"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Detail ketertarikan lead...">
+                </div>
+
                 <div class="col-span-2">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
                     <textarea name="notes" rows="3"
@@ -112,7 +129,6 @@
                     Batal
                 </a>
             </div>
-
         </form>
     </div>
 </x-app-layout>

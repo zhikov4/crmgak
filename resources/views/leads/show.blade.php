@@ -1,99 +1,124 @@
 <x-app-layout>
-    <div class="flex items-center gap-3 mb-6">
-        <a href="{{ route('leads.index') }}" class="text-gray-400 hover:text-gray-600">← Kembali</a>
-        <h1 class="text-2xl font-bold text-gray-800">Edit Lead</h1>
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+            <a href="{{ route('leads.index') }}" class="text-gray-400 hover:text-gray-600">← Kembali</a>
+            <h1 class="text-2xl font-bold text-gray-800">{{ $lead->name }}</h1>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ route('leads.edit', $lead) }}"
+               class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 text-sm font-medium">Edit</a>
+            <form method="POST" action="{{ route('leads.destroy', $lead) }}" onsubmit="return confirm('Hapus lead ini?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm font-medium">Hapus</button>
+            </form>
+        </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm p-6 max-w-2xl">
-        <form method="POST" action="{{ route('leads.update', $lead) }}">
-            @csrf
-            @method('PUT')
-
-            <div class="grid grid-cols-2 gap-4">
-
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name', $lead->name) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
+    <div class="grid grid-cols-3 gap-6">
+        <div class="col-span-2 bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase mb-4">Informasi Lead</h2>
+            <div class="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">No. HP / WhatsApp</label>
-                    <input type="text" name="phone" value="{{ old('phone', $lead->phone) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-400">Nama</p>
+                    <p class="font-medium text-gray-800">{{ $lead->name }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" name="email" value="{{ old('email', $lead->email) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-400">Perusahaan</p>
+                    <p class="font-medium text-gray-800">{{ $lead->company ?? '-' }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Perusahaan</label>
-                    <input type="text" name="company" value="{{ old('company', $lead->company) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-400">No. HP</p>
+                    <p class="font-medium text-gray-800">{{ $lead->phone ?? '-' }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Sumber Lead</label>
-                    <select name="source" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">-- Pilih Sumber --</option>
-                        @foreach(['instagram','facebook','google','referral','whatsapp','website','other'] as $src)
-                            <option value="{{ $src }}" {{ old('source', $lead->source) == $src ? 'selected' : '' }}>
-                                {{ ucfirst($src) }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <p class="text-gray-400">Email</p>
+                    <p class="font-medium text-gray-800">{{ $lead->email ?? '-' }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
-                    <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @foreach(['new','contacted','qualified','proposal','negotiation','won','lost'] as $st)
-                            <option value="{{ $st }}" {{ old('status', $lead->status) == $st ? 'selected' : '' }}>
-                                {{ ucfirst($st) }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <p class="text-gray-400">Kota</p>
+                    <p class="font-medium text-gray-800">{{ $lead->city ?? '-' }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Nilai Deal (Rp)</label>
-                    <input type="number" name="value" value="{{ old('value', $lead->value) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-400">Sumber</p>
+                    <p class="font-medium text-gray-800">{{ ucfirst($lead->source ?? '-') }}</p>
                 </div>
-
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
-                    <input type="text" name="city" value="{{ old('city', $lead->city) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-gray-400">Alamat</p>
+                    <p class="font-medium text-gray-800">{{ $lead->address ?? '-' }}</p>
                 </div>
-
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
-                    <input type="text" name="address" value="{{ old('address', $lead->address) }}"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div>
+                    <p class="text-gray-400">WA Phone</p>
+                    <p class="font-medium text-gray-800">{{ $lead->wa_phone ?? '-' }}</p>
                 </div>
-
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-                    <textarea name="notes" rows="3"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('notes', $lead->notes) }}</textarea>
+                <div>
+                    <p class="text-gray-400">Ketertarikan Produk</p>
+                    <p class="font-medium text-gray-800">
+                        @if($lead->product)
+                            <span class="bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded text-xs">
+                                {{ $lead->product->name }}
+                            </span>
+                        @else
+                            -
+                        @endif
+                    </p>
                 </div>
-
+                <div>
+                    <p class="text-gray-400">Catatan Ketertarikan</p>
+                    <p class="font-medium text-gray-800">{{ $lead->interest_notes ?? '-' }}</p>
+                </div>
             </div>
 
-            <div class="flex gap-3 mt-6">
-                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
-                    Update Lead
-                </button>
-                <a href="{{ route('leads.index') }}" class="border border-gray-300 text-gray-600 px-6 py-2 rounded-lg hover:bg-gray-50 text-sm">
-                    Batal
-                </a>
+            @if($lead->notes)
+            <div class="mt-4 pt-4 border-t">
+                <p class="text-gray-400 text-sm mb-1">Catatan</p>
+                <p class="text-sm text-gray-700">{{ $lead->notes }}</p>
+            </div>
+            @endif
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <p class="text-xs text-gray-400 mb-2">Status</p>
+                @php
+                    $colors = [
+                        'new'         => 'bg-blue-100 text-blue-700',
+                        'contacted'   => 'bg-yellow-100 text-yellow-700',
+                        'qualified'   => 'bg-purple-100 text-purple-700',
+                        'proposal'    => 'bg-orange-100 text-orange-700',
+                        'negotiation' => 'bg-pink-100 text-pink-700',
+                        'won'         => 'bg-green-100 text-green-700',
+                        'lost'        => 'bg-red-100 text-red-700',
+                    ];
+                @endphp
+                <span class="px-3 py-1 rounded-full text-sm font-medium {{ $colors[$lead->status] ?? 'bg-gray-100 text-gray-700' }}">
+                    {{ ucfirst($lead->status) }}
+                </span>
             </div>
 
-        </form>
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <p class="text-xs text-gray-400 mb-1">Nilai Deal</p>
+                <p class="text-xl font-bold text-gray-800">
+                    {{ $lead->value ? 'Rp ' . number_format($lead->value, 0, ',', '.') : '-' }}
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <p class="text-xs text-gray-400 mb-1">Ditambahkan</p>
+                <p class="text-sm font-medium text-gray-800">{{ $lead->created_at->format('d M Y') }}</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-4">
+                <p class="text-xs text-gray-400 mb-2">Hubungi via WhatsApp</p>
+                @if($lead->wa_phone)
+                    <a href="https://wa.me/{{ $lead->wa_phone }}" target="_blank"
+                       class="block w-full bg-green-500 text-white text-center px-4 py-2 rounded-lg hover:bg-green-600 text-sm font-medium">
+                        💬 Buka WhatsApp
+                    </a>
+                @else
+                    <p class="text-xs text-gray-400">Nomor WA tidak tersedia</p>
+                @endif
+            </div>
+        </div>
     </div>
 </x-app-layout>
