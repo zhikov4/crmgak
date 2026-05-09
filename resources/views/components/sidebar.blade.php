@@ -79,6 +79,9 @@
                 <p class="text-xs text-gray-400 truncate">{{ auth()->user()->email }}</p>
             </div>
         </div>
+        <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 text-xs text-gray-400 hover:text-white px-3 py-2 rounded-lg hover:bg-gray-700 mt-2 border border-gray-700 hover:border-gray-500">
+            <span>⚙️</span><span>Pengaturan Profile</span>
+        </a>
         <form method="POST" action="{{ route('logout') }}" class="mt-3">
             @csrf
             <button type="submit" class="w-full text-left text-xs text-gray-400 hover:text-white px-3 py-1 rounded hover:bg-gray-700">

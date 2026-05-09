@@ -9,6 +9,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeamViewController; 
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -185,6 +186,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:direktur,manajer'])->group(function () {
         Route::get('/team', [TeamViewController::class, 'index'])->name('team.index');
     });
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
 
 });
 
