@@ -63,11 +63,61 @@
                         @endif
                     </p>
                 </div>
+
                 <div>
                     <p class="text-gray-400">Catatan Ketertarikan</p>
                     <p class="font-medium text-gray-800">{{ $lead->interest_notes ?? '-' }}</p>
                 </div>
             </div>
+            </div>
+
+{{-- Section Properti --}}
+<div class="mt-4 pt-4 border-t">
+    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">📋 Detail Properti</p>
+    <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+            <p class="text-gray-400">Minat Tipe Unit</p>
+            <p class="font-medium text-gray-800">{{ $lead->interest_type ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Range Budget</p>
+            <p class="font-medium text-gray-800">{{ $lead->budget_range ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Lokasi Minat</p>
+            <p class="font-medium text-gray-800">{{ $lead->location_interest ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Follow Up Terakhir</p>
+            <p class="font-medium text-gray-800">{{ $lead->follow_up_date?->format('d M Y') ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Rencana Survey</p>
+            <p class="font-medium text-gray-800">{{ $lead->survey_plan ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">Hasil Survey</p>
+            <p class="font-medium text-gray-800">{{ $lead->survey_result ?? '-' }}</p>
+        </div>
+        <div>
+            <p class="text-gray-400">UTJ</p>
+            <p class="font-medium">
+                @if($lead->utj_status)
+                    <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full text-xs font-medium">✅ Sudah UTJ</span>
+                    @if($lead->utj_date)
+                        <span class="text-gray-500 text-xs ml-1">{{ $lead->utj_date->format('d M Y') }}</span>
+                    @endif
+                @else
+                    <span class="text-gray-400">Belum UTJ</span>
+                @endif
+            </p>
+        </div>
+        <div>
+            <p class="text-gray-400">Alasan Pending/Batal</p>
+            <p class="font-medium text-gray-800">{{ $lead->cancel_reason ?? '-' }}</p>
+        </div>
+    </div>
+</div>
 
             @if($lead->notes)
             <div class="mt-4 pt-4 border-t">

@@ -120,6 +120,76 @@
                 </div>
 
             </div>
+            {{-- Section Properti --}}
+<div class="border-t pt-4 mt-2">
+    <p class="text-sm font-semibold text-gray-600 mb-3">📋 Detail Properti</p>
+    <div class="grid grid-cols-2 gap-4">
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Minat Tipe Unit</label>
+            <input type="text" name="interest_type" value="{{ old('interest_type', $lead->interest_type) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Type 36, Type 45, Kavling">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Range Budget</label>
+            <select name="budget_range" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="">-- Pilih Range --</option>
+                @foreach(['< 300jt', '300-500jt', '500jt-1M', '1M-2M', '> 2M'] as $range)
+                    <option value="{{ $range }}" {{ old('budget_range', $lead->budget_range) == $range ? 'selected' : '' }}>{{ $range }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Lokasi Minat</label>
+            <input type="text" name="location_interest" value="{{ old('location_interest', $lead->location_interest) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Blok A, Cluster B">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Follow Up Terakhir</label>
+            <input type="date" name="follow_up_date" value="{{ old('follow_up_date', $lead->follow_up_date?->format('Y-m-d')) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Rencana Survey</label>
+            <input type="text" name="survey_plan" value="{{ old('survey_plan', $lead->survey_plan) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Tanggal/rencana survey">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Hasil Survey</label>
+            <input type="text" name="survey_result" value="{{ old('survey_result', $lead->survey_result) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Hasil setelah survey">
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+            <input type="checkbox" name="utj_status" id="utj_status" value="1"
+                {{ old('utj_status', $lead->utj_status) ? 'checked' : '' }} class="rounded w-4 h-4">
+            <label for="utj_status" class="text-sm font-medium text-gray-700">UTJ (Uang Tanda Jadi)</label>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal UTJ</label>
+            <input type="date" name="utj_date" value="{{ old('utj_date', $lead->utj_date?->format('Y-m-d')) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Alasan Pending / Batal</label>
+            <input type="text" name="cancel_reason" value="{{ old('cancel_reason', $lead->cancel_reason) }}"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Jika lead pending atau batal, isi alasannya">
+        </div>
+
+    </div>
+</div>
 
             <div class="flex gap-3 mt-6">
                 <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">

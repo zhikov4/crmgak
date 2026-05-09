@@ -69,10 +69,21 @@ class LeadController extends Controller
             'notes'   => 'nullable|string',
             'address' => 'nullable|string|max:255',
             'city'    => 'nullable|string|max:100',
+            'budget_range'      => 'nullable|string|max:50',
+            'interest_type'     => 'nullable|string|max:255',
+            'location_interest' => 'nullable|string|max:255',
+            'follow_up_date'    => 'nullable|date',
+            'survey_plan'       => 'nullable|string',
+            'survey_result'     => 'nullable|string',
+            'utj_status'        => 'nullable|boolean',
+            'utj_date'          => 'nullable|date',
+            'cancel_reason'     => 'nullable|string',
+            
         ]);
 
         $validated['created_by'] = auth()->id();
         $validated['assigned_to'] = auth()->id();
+        $validated['utj_status'] = $request->has('utj_status');
 
         // Format wa_phone otomatis dari phone
         // Format wa_phone dengan kode negara
@@ -123,7 +134,17 @@ class LeadController extends Controller
             'notes'   => 'nullable|string',
             'address' => 'nullable|string|max:255',
             'city'    => 'nullable|string|max:100',
+            'budget_range'      => 'nullable|string|max:50',
+            'interest_type'     => 'nullable|string|max:255',
+            'location_interest' => 'nullable|string|max:255',
+            'follow_up_date'    => 'nullable|date',
+            'survey_plan'       => 'nullable|string',
+            'survey_result'     => 'nullable|string',
+            'utj_status'        => 'nullable|boolean',
+            'utj_date'          => 'nullable|date',
+            'cancel_reason'     => 'nullable|string',
         ]);
+        $validated['utj_status'] = $request->has('utj_status');
 
         if (!empty($validated['phone'])) {
             $phone = preg_replace('/\D/', '', $validated['phone']);
