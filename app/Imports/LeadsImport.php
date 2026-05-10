@@ -5,9 +5,8 @@ namespace App\Imports;
 use App\Models\Lead;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class LeadsImport implements ToCollection, WithHeadingRow
+class LeadsImport implements ToCollection
 {
     public array $errors   = [];
     public int   $imported = 0;
@@ -42,16 +41,48 @@ class LeadsImport implements ToCollection, WithHeadingRow
 
     public function collection(Collection $rows)
     {
-        foreach ($rows as $index => $row) {
-            $name = $row['nama_user'] ?? $row['nama user'] ?? $row['nama_customer'] ?? $row['nama customer'] ?? $row['nama'] ?? $row['name'] ?? null;
+        $headerRowIndex = null;
+        $headers = [];
 
+        // Cari baris header (ada kolom NAMA USER atau NAMA CUSTOMER)
+        foreach ($rows as $index => $row) {
+            $rowValues = $row->toArray();
+            foreach ($rowValues as $cell) {
+                if ($cell && (
+                    stripos((string)$cell, 'nama user') !== false ||
+                    stripos((string)$cell, 'nama customer') !== false ||
+                    stripos((string)$cell, 'nama marketing') !== false
+                )) {
+                    $headerRowIndex = $index;
+                    $headers = array_map(fn($h) => strtolower(trim((string)($h ?? ''))), $rowValues);
+                    break 2;
+                }
+            }
+        }
+
+        if ($headerRowIndex === null) {
+            $this->errors[] = 'Header row tidak ditemukan';
+            return;
+        }
+
+        // Proses data setelah header
+        foreach ($rows as $index => $row) {
+            if ($index <= $headerRowIndex) continue;
+
+            $rowData = $row->toArray();
+            $mapped  = [];
+            foreach ($headers as $i => $header) {
+                $mapped[$header] = $rowData[$i] ?? null;
+            }
+
+            $name = $mapped['nama user'] ?? $mapped['nama customer'] ?? null;
             if (empty($name)) {
                 $this->skipped++;
                 continue;
             }
 
-            $phone = $row['no_hp'] ?? $row['nomor_wa_hp'] ?? $row['nomor wa_hp'] ?? $row['phone'] ?? $row['telepon'] ?? $row['hp'] ?? null;
-            $phone = $phone ? (string) $phone : null;
+            $phone = $mapped['no hp'] ?? $mapped['nomor wa/hp'] ?? $mapped['no_hp'] ?? null;
+            $phone = $phone ? (string)$phone : null;
 
             $waPhone = null;
             if ($phone) {
@@ -60,43 +91,36 @@ class LeadsImport implements ToCollection, WithHeadingRow
                     $clean = '62' . substr($clean, 1);
                 } elseif (str_starts_with($clean, '8')) {
                     $clean = '62' . $clean;
-                } elseif (str_starts_with($clean, '62')) {
-                    // sudah benar
                 }
                 $waPhone = $clean;
             }
 
-            Lead::create([
-                'name'              => $name,
-                'phone'             => $waPhone ?? $phone,
-                'email'             => $row['email'] ?? null,
-                'company'           => $row['perusahaan'] ?? $row['company'] ?? null,
-                'source'            => $row['sumber_leads'] ?? $row['sumber leads'] ?? $row['sumber'] ?? $row['source'] ?? 'iklan meta',
-                'status'            => $this->mapStatus($row['kategori'] ?? $row['status'] ?? 'new'),
-                'city'              => $row['kota'] ?? $row['city'] ?? null,
-                'address'           => $row['alamat'] ?? $row['address'] ?? null,
-                'notes'             => $row['catatan'] ?? $row['notes'] ?? $row['report_fu'] ?? $row['report fu'] ?? null,
-                'wa_phone'          => $waPhone,
-                'created_by'        => auth()->id(),
-                'assigned_to'       => $this->findStaffByName(
-                    $row['nama_sales'] ?? $row['nama sales'] ??
-                    $row['nama_marketing'] ?? $row['nama marketing'] ??
-                    $row['sales'] ?? null
-                ),
-                'product_id'        => $this->findProductByName($row['produk'] ?? $row['product'] ?? null),
-                'interest_type'     => $row['minat_tipe'] ?? $row['minat tipe'] ?? null,
-                'budget_range'      => $row['range_budget'] ?? $row['range budget'] ?? null,
-                'location_interest' => $row['lokasi_minat'] ?? $row['lokasi minat'] ?? null,
-                'survey_plan'       => $row['rencana_survey'] ?? $row['rencana survey'] ?? null,
-                'survey_result'     => $row['hasil_survey'] ?? $row['hasil survey'] ?? null,
-                'cancel_reason'     => $row['alasan_pending'] ?? $row['alasan pending/batal'] ?? null,
-                'utj_status'        => isset($row['utj']) && strtolower((string)($row['utj'] ?? '')) === 'ya',
-                'utj_date'          => isset($row['tanggal_utj']) ? $this->parseDate($row['tanggal_utj']) : null,
-                'follow_up_date'    => isset($row['tanggal_fu']) ? $this->parseDate($row['tanggal_fu']) :
-                                      (isset($row['tanggal follow up terakhir']) ? $this->parseDate($row['tanggal follow up terakhir']) : null),
-            ]);
-
-            $this->imported++;
+            try {
+                Lead::create([
+                    'name'              => trim((string)$name),
+                    'phone'             => $waPhone ?? $phone,
+                    'wa_phone'          => $waPhone,
+                    'email'             => $mapped['email'] ?? null,
+                    'source'            => $mapped['sumber'] ?? $mapped['sumber leads'] ?? 'iklan meta',
+                    'status'            => $this->mapStatus($mapped['kategori'] ?? $mapped['status'] ?? null),
+                    'notes'             => $mapped['report fu'] ?? $mapped['catatan'] ?? null,
+                    'created_by'        => auth()->id(),
+                    'assigned_to'       => $this->findStaffByName($mapped['nama sales'] ?? $mapped['nama marketing'] ?? null),
+                    'product_id'        => $this->findProductByName($mapped['produk'] ?? null),
+                    'interest_type'     => $mapped['minat tipe'] ?? null,
+                    'budget_range'      => $mapped['range budget'] ?? null,
+                    'location_interest' => $mapped['lokasi minat'] ?? null,
+                    'survey_plan'       => $mapped['rencana survey'] ?? null,
+                    'survey_result'     => $mapped['hasil survey'] ?? null,
+                    'cancel_reason'     => $mapped['alasan pending/batal'] ?? null,
+                    'utj_status'        => isset($mapped['utj']) && strtolower((string)($mapped['utj'] ?? '')) === 'ya',
+                    'follow_up_date'    => isset($mapped['tanggal follow up terakhir']) ? $this->parseDate($mapped['tanggal follow up terakhir']) : null,
+                ]);
+                $this->imported++;
+            } catch (\Exception $e) {
+                $this->errors[] = "Baris " . ($index + 1) . ": " . $e->getMessage();
+                $this->skipped++;
+            }
         }
     }
 

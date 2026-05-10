@@ -23,8 +23,23 @@ class ImportController extends Controller
         $data = Excel::toArray([], $file);
         $rows = $data[0] ?? [];
 
-        $headers = array_shift($rows);
-        $preview = array_slice($rows, 0, 10);
+        // Cari header row
+        $headerRowIndex = null;
+        foreach ($rows as $i => $row) {
+            foreach ($row as $cell) {
+                if ($cell && (
+                    stripos((string)$cell, 'nama user') !== false ||
+                    stripos((string)$cell, 'nama customer') !== false ||
+                    stripos((string)$cell, 'nama marketing') !== false
+                )) {
+                    $headerRowIndex = $i;
+                    break 2;
+                }
+            }
+        }
+
+        $headers = $headerRowIndex !== null ? $rows[$headerRowIndex] : $rows[0];
+        $preview = array_slice($rows, ($headerRowIndex ?? 0) + 1, 10);
 
         session(['import_path' => $file->store('imports')]);
 
@@ -34,7 +49,6 @@ class ImportController extends Controller
     public function import(Request $request)
     {
         $path = session('import_path');
-
         if (!$path) {
             return redirect()->route('import.index')
                 ->with('error', 'File tidak ditemukan. Upload ulang.');
@@ -42,10 +56,13 @@ class ImportController extends Controller
 
         $import = new LeadsImport();
         Excel::import($import, storage_path('app/private/' . $path));
-
         session()->forget('import_path');
 
-        return redirect()->route('leads.index')
-            ->with('success', "Import selesai! {$import->imported} leads berhasil, {$import->skipped} dilewati.");
+        $message = "Import selesai! {$import->imported} leads berhasil, {$import->skipped} dilewati.";
+        if (!empty($import->errors)) {
+            $message .= " Errors: " . implode(', ', array_slice($import->errors, 0, 3));
+        }
+
+        return redirect()->route('leads.index')->with('success', $message);
     }
 }
