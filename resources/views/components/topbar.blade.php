@@ -27,7 +27,7 @@
         </div>
         <div>
             <p class="text-xs font-medium text-gray-700">{{ auth()->user()->name }}</p>
-            <p class="text-xs text-gray-400">Admin</p>
+            <p class="text-xs text-gray-400 capitalize">{{ auth()->user()->role }}</p>
         </div>
     </div>
 

@@ -34,6 +34,7 @@ class Lead extends Model
     'utj_status',
     'utj_date',
     'cancel_reason',
+    'input_date',
 ];
 
 protected $casts = [
@@ -42,6 +43,7 @@ protected $casts = [
     'follow_up_date'   => 'date',
     'utj_date'         => 'date',
     'utj_status'       => 'boolean',
+    'input_date' => 'date',
 ];
 
     public function assignedTo(): BelongsTo

@@ -16,7 +16,18 @@
         <a href="/leads" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('leads*') ? 'bg-gray-700' : '' }}">
             <span>👥</span>
             <span class="text-sm">Leads</span>
-            @php $newLeadsCount = \App\Models\Lead::where('status', 'new')->count(); @endphp
+            @php
+            $user = auth()->user();
+            $newLeadsQuery = \App\Models\Lead::where('status', 'new');
+            if ($user->isStaff()) {
+                $newLeadsQuery->where('assigned_to', $user->id);
+            } elseif ($user->isManajer()) {
+                $staffIds = $user->staffMembers()->pluck('id')->toArray();
+                $staffIds[] = $user->id;
+                $newLeadsQuery->whereIn('assigned_to', $staffIds);
+            }
+            $newLeadsCount = $newLeadsQuery->count();
+            @endphp
             @if($newLeadsCount > 0)
                 <span class="ml-auto bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     {{ $newLeadsCount }}
