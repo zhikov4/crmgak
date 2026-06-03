@@ -10,7 +10,9 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with('lead', 'assignedTo')
+        // Filter proyek sesuai role
+        $projects = Project::visibleTo(auth()->user())
+            ->with('lead', 'assignedTo')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -19,7 +21,7 @@ class ProjectController extends Controller
 
     public function create()
     {
-        $leads = Lead::orderBy('name')->get();
+        $leads = Lead::visibleTo(auth()->user())->orderBy('name')->get();
         return view('projects.create', compact('leads'));
     }
 
@@ -48,17 +50,23 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
+        abort_unless($this->canAccess($project), 403);
+
         return view('projects.show', compact('project'));
     }
 
     public function edit(Project $project)
     {
-        $leads = Lead::orderBy('name')->get();
+        abort_unless($this->canAccess($project), 403);
+
+        $leads = Lead::visibleTo(auth()->user())->orderBy('name')->get();
         return view('projects.edit', compact('project', 'leads'));
     }
 
     public function update(Request $request, Project $project)
     {
+        abort_unless($this->canAccess($project), 403);
+
         $validated = $request->validate([
             'name'        => 'required|string|max:255',
             'lead_id'     => 'nullable|exists:leads,id',
@@ -83,9 +91,31 @@ class ProjectController extends Controller
 
     public function destroy(Project $project)
     {
+        abort_unless($this->canAccess($project), 403);
+
         $project->delete();
 
         return redirect()->route('projects.index')
             ->with('success', 'Proyek berhasil dihapus!');
+    }
+
+    /**
+     * Cek apakah user boleh mengakses proyek ini sesuai role.
+     */
+    private function canAccess(Project $project): bool
+    {
+        $user = auth()->user();
+
+        if ($user->isDirektur()) {
+            return true;
+        }
+
+        if ($user->isManajer()) {
+            $ids   = $user->staffMembers()->pluck('id')->toArray();
+            $ids[] = $user->id;
+            return in_array($project->assigned_to, $ids);
+        }
+
+        return $project->assigned_to === $user->id;
     }
 }

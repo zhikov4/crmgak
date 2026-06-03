@@ -20,7 +20,9 @@ class PipelineController extends Controller
             'lost'        => 'Lost',
         ];
 
-        $pipelines = Pipeline::with('lead', 'assignedTo')
+        // Filter pipeline sesuai role: staff lihat miliknya, manajer lihat timnya, direktur semua
+        $pipelines = Pipeline::visibleTo(auth()->user())
+            ->with('lead', 'assignedTo')
             ->orderBy('order')
             ->get()
             ->groupBy('stage');
@@ -49,6 +51,9 @@ class PipelineController extends Controller
 
     public function updateStage(Request $request, Pipeline $pipeline)
     {
+        // Pastikan user hanya bisa ubah pipeline yang boleh dilihatnya
+        abort_unless($this->canAccess($pipeline), 403);
+
         $request->validate([
             'stage' => 'required|in:new,contacted,survey,proposal,negotiation,won,lost',
         ]);
@@ -60,9 +65,31 @@ class PipelineController extends Controller
 
     public function destroy(Pipeline $pipeline)
     {
+        abort_unless($this->canAccess($pipeline), 403);
+
         $pipeline->delete();
 
         return redirect()->route('pipeline.index')
             ->with('success', 'Deal dihapus dari pipeline!');
+    }
+
+    /**
+     * Cek apakah user boleh mengakses pipeline ini sesuai role.
+     */
+    private function canAccess(Pipeline $pipeline): bool
+    {
+        $user = auth()->user();
+
+        if ($user->isDirektur()) {
+            return true;
+        }
+
+        if ($user->isManajer()) {
+            $ids   = $user->staffMembers()->pluck('id')->toArray();
+            $ids[] = $user->id;
+            return in_array($pipeline->assigned_to, $ids);
+        }
+
+        return $pipeline->assigned_to === $user->id;
     }
 }
