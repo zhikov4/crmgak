@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Concerns\ScopesByRole;
 
 class Lead extends Model
 {
+    use ScopesByRole;
+
     protected $fillable = [
     'name',
     'phone',

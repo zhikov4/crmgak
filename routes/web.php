@@ -85,26 +85,22 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/activities/{activity}/done', [ActivityController::class, 'markDone'])->name('activities.done');
 
     Route::get('/analytics', function () {
-        $user  = auth()->user();
-        $query = \App\Models\Lead::query();
+        $user = auth()->user();
 
-        if ($user->isStaff()) {
-            $query->where('assigned_to', $user->id);
-        } elseif ($user->isManajer()) {
-            $staffIds   = $user->staffMembers()->pluck('id')->toArray();
-            $staffIds[] = $user->id;
-            $query->whereIn('assigned_to', $staffIds);
-        }
+        // Semua query difilter berdasarkan role lewat scope visibleTo()
+        $leadQuery     = \App\Models\Lead::visibleTo($user);
+        $pipelineQuery = \App\Models\Pipeline::visibleTo($user);
+        $projectQuery  = \App\Models\Project::visibleTo($user);
 
-        $totalLeads         = $query->count();
-        $totalPipelineValue = \App\Models\Pipeline::sum('value');
-        $wonLeads           = (clone $query)->where('status', 'won')->count();
+        $totalLeads         = (clone $leadQuery)->count();
+        $totalPipelineValue = (clone $pipelineQuery)->sum('value');
+        $wonLeads           = (clone $leadQuery)->where('status', 'won')->count();
         $conversionRate     = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
-        $avgDealValue       = \App\Models\Pipeline::where('stage', 'won')->avg('value') ?? 0;
-        $leadsPerStatus     = (clone $query)->selectRaw('status, COUNT(*) as total')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
-        $leadsPerSource     = (clone $query)->selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->take(6)->get();
-        $pipelinePerStage   = \App\Models\Pipeline::selectRaw('stage, SUM(value) as total')->groupBy('stage')->orderByRaw('SUM(value) DESC')->get();
-        $projectsPerStatus  = \App\Models\Project::selectRaw('status, COUNT(*) as total')->groupBy('status')->get();
+        $avgDealValue       = (clone $pipelineQuery)->where('stage', 'won')->avg('value') ?? 0;
+        $leadsPerStatus     = (clone $leadQuery)->selectRaw('status, COUNT(*) as total')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
+        $leadsPerSource     = (clone $leadQuery)->selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->take(6)->get();
+        $pipelinePerStage   = (clone $pipelineQuery)->selectRaw('stage, SUM(value) as total')->groupBy('stage')->orderByRaw('SUM(value) DESC')->get();
+        $projectsPerStatus  = (clone $projectQuery)->selectRaw('status, COUNT(*) as total')->groupBy('status')->get();
 
         return view('analytics', compact(
             'totalLeads', 'totalPipelineValue', 'conversionRate', 'avgDealValue',
@@ -113,24 +109,34 @@ Route::middleware(['auth'])->group(function () {
     })->name('analytics');
 
     Route::get('/reports', function () {
+        $user    = auth()->user();
         $bulan   = request('bulan', now()->format('Y-m'));
         $periode = \Carbon\Carbon::createFromFormat('Y-m', $bulan);
 
-        $totalLeads         = \App\Models\Lead::count();
-        $newLeads           = \App\Models\Lead::whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
-        $wonLeads           = \App\Models\Lead::where('status', 'won')->count();
-        $lostLeads          = \App\Models\Lead::where('status', 'lost')->count();
-        $totalPipelineValue = \App\Models\Pipeline::sum('value');
-        $wonValue           = \App\Models\Pipeline::where('stage', 'won')->sum('value');
-        $activeProjects     = \App\Models\Project::whereIn('status', ['planning','in_progress'])->count();
-        $completedProjects  = \App\Models\Project::where('status', 'completed')->count();
+        // Semua query difilter berdasarkan role lewat scope visibleTo()
+        $totalLeads         = \App\Models\Lead::visibleTo($user)->count();
+        $newLeads           = \App\Models\Lead::visibleTo($user)->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
+        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'won')->count();
+        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'lost')->count();
+        $totalPipelineValue = \App\Models\Pipeline::visibleTo($user)->sum('value');
+        $wonValue           = \App\Models\Pipeline::visibleTo($user)->where('stage', 'won')->sum('value');
+        $activeProjects     = \App\Models\Project::visibleTo($user)->whereIn('status', ['planning','in_progress'])->count();
+        $completedProjects  = \App\Models\Project::visibleTo($user)->where('status', 'completed')->count();
         $conversionRate     = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
-        $leadsByStatus      = \App\Models\Lead::selectRaw('status, COUNT(*) as total, SUM(value) as nilai')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
-        $leadsBySource      = \App\Models\Lead::selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->get();
-        $activePipelines    = \App\Models\Pipeline::with('lead')->whereNotIn('stage', ['won','lost'])->orderBy('value', 'desc')->take(10)->get();
-        $recentActivities   = \App\Models\Activity::with('createdBy')->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->orderBy('created_at', 'desc')->take(10)->get();
-        $projects           = \App\Models\Project::with('lead')->orderBy('created_at', 'desc')->take(8)->get();
-        $leadsPerMonth      = \App\Models\Lead::selectRaw("TO_CHAR(created_at, 'Mon YY') as month, COUNT(*) as total")->where('created_at', '>=', now()->subMonths(6))->groupByRaw("TO_CHAR(created_at, 'Mon YY')")->orderByRaw("MIN(created_at)")->get();
+        $leadsByStatus      = \App\Models\Lead::visibleTo($user)->selectRaw('status, COUNT(*) as total, SUM(value) as nilai')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
+        $leadsBySource      = \App\Models\Lead::visibleTo($user)->selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->get();
+        $activePipelines    = \App\Models\Pipeline::visibleTo($user)->with('lead')->whereNotIn('stage', ['won','lost'])->orderBy('value', 'desc')->take(10)->get();
+        $recentActivities   = \App\Models\Activity::with('createdBy')
+            ->when($user->isStaff(), fn($q) => $q->where('created_by', $user->id))
+            ->when($user->isManajer(), function ($q) use ($user) {
+                $ids = $user->staffMembers()->pluck('id')->toArray();
+                $ids[] = $user->id;
+                $q->whereIn('created_by', $ids);
+            })
+            ->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)
+            ->orderBy('created_at', 'desc')->take(10)->get();
+        $projects           = \App\Models\Project::visibleTo($user)->with('lead')->orderBy('created_at', 'desc')->take(8)->get();
+        $leadsPerMonth      = \App\Models\Lead::visibleTo($user)->selectRaw("TO_CHAR(created_at, 'Mon YY') as month, COUNT(*) as total")->where('created_at', '>=', now()->subMonths(6))->groupByRaw("TO_CHAR(created_at, 'Mon YY')")->orderByRaw("MIN(created_at)")->get();
 
         return view('reports', compact(
             'bulan', 'periode', 'totalLeads', 'newLeads', 'wonLeads', 'lostLeads',
@@ -141,22 +147,24 @@ Route::middleware(['auth'])->group(function () {
     })->name('reports');
 
     Route::get('/reports/print', function () {
+        $user    = auth()->user();
         $bulan   = request('bulan', now()->format('Y-m'));
         $periode = \Carbon\Carbon::createFromFormat('Y-m', $bulan);
 
-        $totalLeads         = \App\Models\Lead::count();
-        $newLeads           = \App\Models\Lead::whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
-        $wonLeads           = \App\Models\Lead::where('status', 'won')->count();
-        $lostLeads          = \App\Models\Lead::where('status', 'lost')->count();
-        $totalPipelineValue = \App\Models\Pipeline::sum('value');
-        $wonValue           = \App\Models\Pipeline::where('stage', 'won')->sum('value');
-        $activeProjects     = \App\Models\Project::whereIn('status', ['planning','in_progress'])->count();
-        $completedProjects  = \App\Models\Project::where('status', 'completed')->count();
+        // Semua query difilter berdasarkan role lewat scope visibleTo()
+        $totalLeads         = \App\Models\Lead::visibleTo($user)->count();
+        $newLeads           = \App\Models\Lead::visibleTo($user)->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
+        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'won')->count();
+        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'lost')->count();
+        $totalPipelineValue = \App\Models\Pipeline::visibleTo($user)->sum('value');
+        $wonValue           = \App\Models\Pipeline::visibleTo($user)->where('stage', 'won')->sum('value');
+        $activeProjects     = \App\Models\Project::visibleTo($user)->whereIn('status', ['planning','in_progress'])->count();
+        $completedProjects  = \App\Models\Project::visibleTo($user)->where('status', 'completed')->count();
         $conversionRate     = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
-        $leadsByStatus      = \App\Models\Lead::selectRaw('status, COUNT(*) as total, SUM(value) as nilai')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
-        $leadsBySource      = \App\Models\Lead::selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->get();
-        $activePipelines    = \App\Models\Pipeline::with('lead')->whereNotIn('stage', ['won','lost'])->orderBy('value', 'desc')->take(10)->get();
-        $projects           = \App\Models\Project::with('lead')->orderBy('created_at', 'desc')->take(10)->get();
+        $leadsByStatus      = \App\Models\Lead::visibleTo($user)->selectRaw('status, COUNT(*) as total, SUM(value) as nilai')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
+        $leadsBySource      = \App\Models\Lead::visibleTo($user)->selectRaw('source, COUNT(*) as total')->groupBy('source')->orderByRaw('COUNT(*) DESC')->get();
+        $activePipelines    = \App\Models\Pipeline::visibleTo($user)->with('lead')->whereNotIn('stage', ['won','lost'])->orderBy('value', 'desc')->take(10)->get();
+        $projects           = \App\Models\Project::visibleTo($user)->with('lead')->orderBy('created_at', 'desc')->take(10)->get();
 
         return view('reports-print', compact(
             'bulan', 'periode', 'totalLeads', 'newLeads', 'wonLeads', 'lostLeads',

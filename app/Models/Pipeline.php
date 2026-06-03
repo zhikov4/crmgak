@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Concerns\ScopesByRole;
 
 class Pipeline extends Model
 {
+    use ScopesByRole;
+
     protected $fillable = [
         'lead_id',
         'stage',
