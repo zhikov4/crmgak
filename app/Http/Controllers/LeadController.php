@@ -47,7 +47,16 @@ class LeadController extends Controller
         $leads    = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
         $products = Product::where('is_active', true)->orderBy('name')->get();
 
-        return view('leads.index', compact('leads', 'products'));
+        // Daftar sumber diambil dinamis dari data yang ada (sesuai role),
+        // supaya filter selalu cocok dengan sumber riil di database.
+        $sources = Lead::visibleTo($user)
+            ->whereNotNull('source')
+            ->where('source', '!=', '')
+            ->distinct()
+            ->orderBy('source')
+            ->pluck('source');
+
+        return view('leads.index', compact('leads', 'products', 'sources'));
     }
 
     public function create()
