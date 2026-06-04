@@ -62,13 +62,13 @@ class TeamViewController extends Controller
 
             $staffStats = [
                 'total_leads'    => $staffLeads->count(),
-                'won_leads'      => $staffLeads->where('status', 'won')->count(),
-                'lost_leads'     => $staffLeads->where('status', 'lost')->count(),
+                'won_leads'      => $staffLeads->where('status', 'closing')->count(),
+                'lost_leads'     => $staffLeads->where('status', 'batal')->count(),
                 'pipeline_value' => $staffPipelines->whereNotIn('stage', ['won','lost'])->sum('value'),
                 'won_value'      => $staffPipelines->where('stage', 'won')->sum('value'),
                 'active_projects'=> $staffProjects->whereIn('status', ['planning','in_progress'])->count(),
                 'conversion'     => $staffLeads->count() > 0
-                    ? round(($staffLeads->where('status','won')->count() / $staffLeads->count()) * 100)
+                    ? round(($staffLeads->where('status','closing')->count() / $staffLeads->count()) * 100)
                     : 0,
             ];
         }
@@ -80,12 +80,12 @@ class TeamViewController extends Controller
             $allStaffData->push([
                 'staff'          => $staff,
                 'total_leads'    => $leads->count(),
-                'new_leads'      => $leads->where('status', 'new')->count(),
-                'won_leads'      => $leads->where('status', 'won')->count(),
+                'new_leads'      => $leads->where('status', 'no_respon')->count(),
+                'won_leads'      => $leads->where('status', 'closing')->count(),
                 'pipeline_value' => Pipeline::where('assigned_to', $staff->id)->whereNotIn('stage',['won','lost'])->sum('value'),
                 'won_value'      => Pipeline::where('assigned_to', $staff->id)->where('stage','won')->sum('value'),
                 'conversion'     => $leads->count() > 0
-                    ? round(($leads->where('status','won')->count() / $leads->count()) * 100)
+                    ? round(($leads->where('status','closing')->count() / $leads->count()) * 100)
                     : 0,
             ]);
         }

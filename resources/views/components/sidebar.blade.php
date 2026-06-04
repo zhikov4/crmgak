@@ -18,7 +18,7 @@
             <span class="text-sm">Leads</span>
             @php
             $user = auth()->user();
-            $newLeadsQuery = \App\Models\Lead::where('status', 'new');
+            $newLeadsQuery = \App\Models\Lead::where('status', 'no_respon');
             if ($user->isStaff()) {
                 $newLeadsQuery->where('assigned_to', $user->id);
             } elseif ($user->isManajer()) {

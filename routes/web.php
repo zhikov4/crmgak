@@ -94,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
 
         $totalLeads         = (clone $leadQuery)->count();
         $totalPipelineValue = (clone $pipelineQuery)->sum('value');
-        $wonLeads           = (clone $leadQuery)->where('status', 'won')->count();
+        $wonLeads           = (clone $leadQuery)->where('status', 'closing')->count();
         $conversionRate     = $totalLeads > 0 ? round(($wonLeads / $totalLeads) * 100) : 0;
         $avgDealValue       = (clone $pipelineQuery)->where('stage', 'won')->avg('value') ?? 0;
         $leadsPerStatus     = (clone $leadQuery)->selectRaw('status, COUNT(*) as total')->groupBy('status')->orderByRaw('COUNT(*) DESC')->get();
@@ -116,8 +116,8 @@ Route::middleware(['auth'])->group(function () {
         // Semua query difilter berdasarkan role lewat scope visibleTo()
         $totalLeads         = \App\Models\Lead::visibleTo($user)->count();
         $newLeads           = \App\Models\Lead::visibleTo($user)->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
-        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'won')->count();
-        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'lost')->count();
+        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'closing')->count();
+        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'batal')->count();
         $totalPipelineValue = \App\Models\Pipeline::visibleTo($user)->sum('value');
         $wonValue           = \App\Models\Pipeline::visibleTo($user)->where('stage', 'won')->sum('value');
         $activeProjects     = \App\Models\Project::visibleTo($user)->whereIn('status', ['planning','in_progress'])->count();
@@ -154,8 +154,8 @@ Route::middleware(['auth'])->group(function () {
         // Semua query difilter berdasarkan role lewat scope visibleTo()
         $totalLeads         = \App\Models\Lead::visibleTo($user)->count();
         $newLeads           = \App\Models\Lead::visibleTo($user)->whereMonth('created_at', $periode->month)->whereYear('created_at', $periode->year)->count();
-        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'won')->count();
-        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'lost')->count();
+        $wonLeads           = \App\Models\Lead::visibleTo($user)->where('status', 'closing')->count();
+        $lostLeads          = \App\Models\Lead::visibleTo($user)->where('status', 'batal')->count();
         $totalPipelineValue = \App\Models\Pipeline::visibleTo($user)->sum('value');
         $wonValue           = \App\Models\Pipeline::visibleTo($user)->where('stage', 'won')->sum('value');
         $activeProjects     = \App\Models\Project::visibleTo($user)->whereIn('status', ['planning','in_progress'])->count();

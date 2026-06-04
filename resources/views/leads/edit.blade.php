@@ -68,9 +68,9 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
                     <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        @foreach(['new','contacted','qualified','proposal','negotiation','won','lost'] as $st)
-                            <option value="{{ $st }}" {{ old('status', $lead->status) == $st ? 'selected' : '' }}>
-                                {{ ucfirst($st) }}
+                        @foreach(\App\Models\Lead::STATUSES as $key => $label)
+                            <option value="{{ $key }}" {{ old('status', $lead->status) == $key ? 'selected' : '' }}>
+                                {{ $label }}
                             </option>
                         @endforeach
                     </select>

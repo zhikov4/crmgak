@@ -126,19 +126,22 @@ class LeadsImport implements ToCollection
 
     private function mapStatus(?string $status): string
     {
-        if (!$status) return 'new';
+        if (!$status) return 'no_respon';
         $s = strtolower(trim((string)$status));
         return match(true) {
-            str_contains($s, 'prospek')   => 'new',
-            str_contains($s, 'no respon') => 'contacted',
-            str_contains($s, 'follow')    => 'contacted',
-            str_contains($s, 'survey')    => 'qualified',
-            str_contains($s, 'nego')      => 'negotiation',
-            str_contains($s, 'deal')      => 'won',
-            str_contains($s, 'utj')       => 'won',
-            str_contains($s, 'batal')     => 'lost',
-            str_contains($s, 'cancel')    => 'lost',
-            default                       => 'new',
+            str_contains($s, 'no respon')  => 'no_respon',
+            str_contains($s, 'belum')      => 'no_respon',
+            str_contains($s, 'closing')    => 'closing',
+            str_contains($s, 'deal')       => 'closing',
+            str_contains($s, 'utj')        => 'utj',
+            str_contains($s, 'survey')     => 'survey',
+            str_contains($s, 'pl')         => 'kirim_pl',  // "sdh dikirim PL"
+            str_contains($s, 'price')      => 'kirim_pl',
+            str_contains($s, 'batal')      => 'batal',
+            str_contains($s, 'cancel')     => 'batal',
+            str_contains($s, 'pending')    => 'batal',
+            str_contains($s, 'respon')     => 'respon',    // "RESPON" (setelah no respon dicek di atas)
+            default                        => 'no_respon',
         };
     }
 

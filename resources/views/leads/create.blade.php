@@ -82,13 +82,9 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
                     <select name="status" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="new" {{ old('status') == 'new' ? 'selected' : '' }}>New</option>
-                        <option value="contacted" {{ old('status') == 'contacted' ? 'selected' : '' }}>Contacted</option>
-                        <option value="qualified" {{ old('status') == 'qualified' ? 'selected' : '' }}>Qualified</option>
-                        <option value="proposal" {{ old('status') == 'proposal' ? 'selected' : '' }}>Proposal</option>
-                        <option value="negotiation" {{ old('status') == 'negotiation' ? 'selected' : '' }}>Negotiation</option>
-                        <option value="won" {{ old('status') == 'won' ? 'selected' : '' }}>Won</option>
-                        <option value="lost" {{ old('status') == 'lost' ? 'selected' : '' }}>Lost</option>
+                        @foreach(\App\Models\Lead::STATUSES as $key => $label)
+                            <option value="{{ $key }}" {{ old('status', 'no_respon') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
                     </select>
                     @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

@@ -118,20 +118,13 @@
                     @foreach($leadsByStatus as $item)
                     @php
                         $pct = $totalLeads > 0 ? round(($item->total/$totalLeads)*100) : 0;
-                        $colors = [
-                            'new'=>'bg-blue-100 text-blue-700',
-                            'contacted'=>'bg-yellow-100 text-yellow-700',
-                            'qualified'=>'bg-purple-100 text-purple-700',
-                            'proposal'=>'bg-orange-100 text-orange-700',
-                            'negotiation'=>'bg-pink-100 text-pink-700',
-                            'won'=>'bg-green-100 text-green-700',
-                            'lost'=>'bg-red-100 text-red-700',
-                        ];
+                        $statusColor = \App\Models\Lead::STATUS_COLORS[$item->status] ?? 'bg-gray-100 text-gray-700';
+                        $statusLabel = \App\Models\Lead::STATUSES[$item->status] ?? $item->status;
                     @endphp
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$item->status] ?? 'bg-gray-100 text-gray-700' }}">
-                                {{ ucfirst($item->status) }}
+                            <span class="px-2 py-1 rounded-full text-xs font-medium {{ $statusColor }}">
+                                {{ $statusLabel }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-center font-semibold text-gray-800">{{ $item->total }}</td>

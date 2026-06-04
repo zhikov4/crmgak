@@ -10,6 +10,44 @@ class Lead extends Model
 {
     use ScopesByRole;
 
+    /**
+     * Daftar status sesuai alur kerja properti GAK.
+     * Satu sumber kebenaran — dipakai di dropdown, badge, dan validasi.
+     * key (disimpan di DB) => label (ditampilkan ke user)
+     */
+    public const STATUSES = [
+        'no_respon' => 'No Respon',
+        'respon'    => 'Respon',
+        'kirim_pl'  => 'Kirim Price List',
+        'survey'    => 'Survey',
+        'utj'       => 'UTJ',
+        'closing'   => 'Closing',
+        'batal'     => 'Batal',
+    ];
+
+    /** Warna badge per status (kelas Tailwind). */
+    public const STATUS_COLORS = [
+        'no_respon' => 'bg-gray-100 text-gray-700',
+        'respon'    => 'bg-blue-100 text-blue-700',
+        'kirim_pl'  => 'bg-purple-100 text-purple-700',
+        'survey'    => 'bg-yellow-100 text-yellow-700',
+        'utj'       => 'bg-orange-100 text-orange-700',
+        'closing'   => 'bg-green-100 text-green-700',
+        'batal'     => 'bg-red-100 text-red-700',
+    ];
+
+    /** Label status untuk lead ini. */
+    public function statusLabel(): string
+    {
+        return self::STATUSES[$this->status] ?? $this->status;
+    }
+
+    /** Kelas warna badge untuk lead ini. */
+    public function statusColor(): string
+    {
+        return self::STATUS_COLORS[$this->status] ?? 'bg-gray-100 text-gray-700';
+    }
+
     protected $fillable = [
     'name',
     'phone',

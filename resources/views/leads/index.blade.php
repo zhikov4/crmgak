@@ -20,8 +20,8 @@
                 <label class="block text-xs text-gray-500 mb-1">Status</label>
                 <select name="status" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Semua Status</option>
-                    @foreach(['new','contacted','qualified','proposal','negotiation','won','lost'] as $st)
-                        <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ ucfirst($st) }}</option>
+                    @foreach(\App\Models\Lead::STATUSES as $key => $label)
+                        <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
@@ -74,19 +74,8 @@
                     <td class="px-4 py-3 text-gray-600">{{ $lead->phone ?? '-' }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $lead->source ?? '-' }}</td>
                     <td class="px-4 py-3">
-                        @php
-                            $colors = [
-                                'new'         => 'bg-blue-100 text-blue-700',
-                                'contacted'   => 'bg-yellow-100 text-yellow-700',
-                                'qualified'   => 'bg-purple-100 text-purple-700',
-                                'proposal'    => 'bg-orange-100 text-orange-700',
-                                'negotiation' => 'bg-pink-100 text-pink-700',
-                                'won'         => 'bg-green-100 text-green-700',
-                                'lost'        => 'bg-red-100 text-red-700',
-                            ];
-                        @endphp
-                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$lead->status] ?? 'bg-gray-100 text-gray-700' }}">
-                            {{ ucfirst($lead->status) }}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $lead->statusColor() }}">
+                            {{ $lead->statusLabel() }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-gray-600">

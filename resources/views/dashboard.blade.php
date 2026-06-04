@@ -58,19 +58,8 @@
                         <p class="text-xs text-gray-400">{{ $lead->company ?? $lead->source ?? '-' }}</p>
                     </div>
                     <div class="text-right">
-                        @php
-                            $colors = [
-                                'new'         => 'bg-blue-100 text-blue-700',
-                                'contacted'   => 'bg-yellow-100 text-yellow-700',
-                                'qualified'   => 'bg-purple-100 text-purple-700',
-                                'proposal'    => 'bg-orange-100 text-orange-700',
-                                'negotiation' => 'bg-pink-100 text-pink-700',
-                                'won'         => 'bg-green-100 text-green-700',
-                                'lost'        => 'bg-red-100 text-red-700',
-                            ];
-                        @endphp
-                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $colors[$lead->status] ?? 'bg-gray-100 text-gray-700' }}">
-                            {{ ucfirst($lead->status) }}
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {{ $lead->statusColor() }}">
+                            {{ $lead->statusLabel() }}
                         </span>
                         <p class="text-xs text-gray-400 mt-1">{{ $lead->created_at->diffForHumans() }}</p>
                     </div>
