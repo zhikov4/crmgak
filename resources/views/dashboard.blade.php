@@ -76,6 +76,11 @@
                             <a href="https://wa.me/{{ $lead->wa_phone }}" target="_blank"
                                class="text-xs bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600">WhatsApp</a>
                         @endif
+                        <form method="POST" action="{{ route('leads.followed-up', $lead) }}">
+                            @csrf
+                            <button type="submit" title="Tandai sudah di-follow up hari ini"
+                                class="text-xs border border-green-300 text-green-700 px-2.5 py-1 rounded hover:bg-green-50">✓ Sudah FU</button>
+                        </form>
                         <a href="{{ route('leads.show', $lead) }}"
                            class="text-xs border border-gray-300 text-gray-600 px-2.5 py-1 rounded hover:bg-gray-50">Lihat</a>
                     </div>

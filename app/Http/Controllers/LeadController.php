@@ -175,6 +175,20 @@ class LeadController extends Controller
     }
 
     /**
+     * Tandai lead sudah di-follow up hari ini (set follow_up_date = hari ini).
+     * Tombol satu-klik untuk sales — lead langsung keluar dari daftar "perlu FU".
+     */
+    public function markFollowedUp(Lead $lead)
+    {
+        // Pakai aturan akses yang sama dengan edit (staff hanya lead miliknya)
+        $this->authorize('update', $lead);
+
+        $lead->update(['follow_up_date' => now()->toDateString()]);
+
+        return back()->with('success', "Lead \"{$lead->name}\" ditandai sudah di-follow up hari ini.");
+    }
+
+    /**
      * Helper: normalisasi nomor telepon ke format internasional.
      * Contoh: (0812-3456, 62) → 6281234560
      */

@@ -120,6 +120,16 @@
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex gap-1">
+                            @if(!in_array($lead->status, ['closing','batal']))
+                                <form method="POST" action="{{ route('leads.followed-up', $lead) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        title="Tandai sudah di-follow up hari ini"
+                                        class="bg-green-50 text-green-700 border border-green-200 px-3 py-1 rounded text-xs font-medium hover:bg-green-100">
+                                        ✓ Sudah FU
+                                    </button>
+                                </form>
+                            @endif
                             <a href="{{ route('leads.show', $lead) }}"
                                class="bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1 rounded text-xs font-medium hover:bg-blue-100">
                                 Lihat
