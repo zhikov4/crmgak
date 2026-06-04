@@ -44,6 +44,11 @@ class LeadController extends Controller
             $query->where('product_id', $request->product_id);
         }
 
+        // Filter cepat: hanya lead yang perlu di-follow up
+        if ($request->boolean('needs_followup')) {
+            $query->needsFollowUp();
+        }
+
         $leads    = $query->orderBy('created_at', 'desc')->paginate(20)->withQueryString();
         $products = Product::where('is_active', true)->orderBy('name')->get();
 

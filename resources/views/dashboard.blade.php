@@ -43,6 +43,48 @@
         </div>
     </div>
 
+    {{-- Panel: Lead Perlu Follow Up --}}
+    @if($followUpCount > 0)
+    <div class="bg-white rounded-lg shadow-sm mb-6 border-l-4 border-orange-400">
+        <div class="flex items-center justify-between p-4 border-b">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">⏰</span>
+                <h2 class="font-semibold text-gray-700">Perlu Follow Up</h2>
+                <span class="bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">{{ $followUpCount }}</span>
+            </div>
+            <a href="{{ route('leads.index', ['needs_followup' => 1]) }}" class="text-xs text-orange-600 hover:underline font-medium">Lihat semua</a>
+        </div>
+        <div class="divide-y">
+            @foreach($followUpLeads as $lead)
+                <div class="flex items-center justify-between px-4 py-3 hover:bg-orange-50">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="font-medium text-gray-800 truncate">{{ $lead->name }}</span>
+                            <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $lead->statusColor() }}">{{ $lead->statusLabel() }}</span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-0.5">
+                            {{ $lead->assignedTo->name ?? '-' }} · {{ $lead->product->name ?? 'Tanpa produk' }}
+                            @if($lead->follow_up_date)
+                                · FU terakhir {{ \Carbon\Carbon::parse($lead->follow_up_date)->diffForHumans() }}
+                            @else
+                                · <span class="text-orange-600">belum pernah di-FU</span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-3">
+                        @if($lead->wa_phone)
+                            <a href="https://wa.me/{{ $lead->wa_phone }}" target="_blank"
+                               class="text-xs bg-green-500 text-white px-2.5 py-1 rounded hover:bg-green-600">WhatsApp</a>
+                        @endif
+                        <a href="{{ route('leads.show', $lead) }}"
+                           class="text-xs border border-gray-300 text-gray-600 px-2.5 py-1 rounded hover:bg-gray-50">Lihat</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     <div class="grid grid-cols-3 gap-6">
         {{-- Leads Terbaru --}}
         <div class="col-span-2 bg-white rounded-lg shadow-sm">

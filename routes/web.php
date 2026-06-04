@@ -63,10 +63,19 @@ Route::middleware(['auth'])->group(function () {
             ->orderByRaw('COUNT(*) DESC')
             ->take(7)->get();
 
+        // Lead yang perlu di-follow up — diurutkan dari yang paling lama diam
+        $followUpLeads = (clone $leadsQuery)
+            ->needsFollowUp()
+            ->with('assignedTo', 'product')
+            ->orderByRaw('follow_up_date ASC NULLS FIRST')
+            ->take(8)->get();
+        $followUpCount = (clone $leadsQuery)->needsFollowUp()->count();
+
         return view('dashboard', compact(
             'totalLeads', 'newLeads', 'activePipelines', 'pipelineValue',
             'activeProjects', 'completedProjects', 'wonDeals', 'wonValue',
-            'recentLeads', 'upcomingActivities', 'leadsPerMonth', 'leadsPerSource'
+            'recentLeads', 'upcomingActivities', 'leadsPerMonth', 'leadsPerSource',
+            'followUpLeads', 'followUpCount'
         ));
     })->name('dashboard');
 

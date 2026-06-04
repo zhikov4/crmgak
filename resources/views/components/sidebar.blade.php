@@ -18,18 +18,12 @@
             <span class="text-sm">Leads</span>
             @php
             $user = auth()->user();
-            $newLeadsQuery = \App\Models\Lead::where('status', 'no_respon');
-            if ($user->isStaff()) {
-                $newLeadsQuery->where('assigned_to', $user->id);
-            } elseif ($user->isManajer()) {
-                $staffIds = $user->staffMembers()->pluck('id')->toArray();
-                $staffIds[] = $user->id;
-                $newLeadsQuery->whereIn('assigned_to', $staffIds);
-            }
-            $newLeadsCount = $newLeadsQuery->count();
+            // Jumlah lead yang perlu di-follow up (sesuai role lewat visibleTo)
+            $newLeadsCount = \App\Models\Lead::visibleTo($user)->needsFollowUp()->count();
             @endphp
             @if($newLeadsCount > 0)
-                <span class="ml-auto bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                <span class="ml-auto bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full"
+                      title="{{ $newLeadsCount }} lead perlu di-follow up">
                     {{ $newLeadsCount }}
                 </span>
             @endif

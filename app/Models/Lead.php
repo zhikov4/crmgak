@@ -79,6 +79,29 @@ class Lead extends Model
             ->toArray();
     }
 
+    /**
+     * Berapa hari sebuah lead boleh "diam" sebelum dianggap perlu di-follow up lagi.
+     */
+    public const FOLLOW_UP_THRESHOLD_DAYS = 3;
+
+    /**
+     * Scope: lead yang PERLU DI-FOLLOW UP.
+     * Yaitu lead yang masih aktif (belum closing/batal) DAN:
+     *   - belum pernah di-follow up (follow_up_date kosong), ATAU
+     *   - follow up terakhir sudah lewat ambang batas (default 3 hari).
+     */
+    public function scopeNeedsFollowUp($query)
+    {
+        $threshold = now()->subDays(self::FOLLOW_UP_THRESHOLD_DAYS)->toDateString();
+
+        return $query
+            ->whereNotIn('status', ['closing', 'batal'])
+            ->where(function ($q) use ($threshold) {
+                $q->whereNull('follow_up_date')
+                  ->orWhereDate('follow_up_date', '<=', $threshold);
+            });
+    }
+
     protected $fillable = [
     'name',
     'phone',

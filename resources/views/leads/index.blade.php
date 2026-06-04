@@ -9,6 +9,9 @@
 
     {{-- Search & Filter --}}
     <form method="GET" action="{{ route('leads.index') }}" class="bg-white rounded-lg shadow-sm p-4 mb-4">
+        @if(request()->boolean('needs_followup'))
+            <input type="hidden" name="needs_followup" value="1">
+        @endif
         <div class="flex gap-3 items-end">
             <div class="flex-1">
                 <label class="block text-xs text-gray-500 mb-1">Cari</label>
@@ -38,12 +41,27 @@
                 <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium">
                     Cari
                 </button>
-                @if(request('search') || request('status') || request('source'))
+                @if(request('search') || request('status') || request('source') || request('needs_followup'))
                     <a href="{{ route('leads.index') }}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 text-sm">
                         Reset
                     </a>
                 @endif
             </div>
+        </div>
+
+        {{-- Filter cepat: perlu follow up --}}
+        <div class="mt-3 pt-3 border-t border-gray-100">
+            @if(request()->boolean('needs_followup'))
+                <a href="{{ route('leads.index') }}"
+                   class="inline-flex items-center gap-1 bg-orange-500 text-white px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-600">
+                    ⏰ Perlu Follow Up — tampil semua
+                </a>
+            @else
+                <a href="{{ route('leads.index', ['needs_followup' => 1]) }}"
+                   class="inline-flex items-center gap-1 border border-orange-300 text-orange-700 px-3 py-1.5 rounded-lg text-sm font-medium hover:bg-orange-50">
+                    ⏰ Tampilkan hanya yang perlu Follow Up
+                </a>
+            @endif
         </div>
     </form>
 
