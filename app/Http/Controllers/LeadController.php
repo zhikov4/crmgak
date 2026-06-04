@@ -56,7 +56,10 @@ class LeadController extends Controller
             ->orderBy('source')
             ->pluck('source');
 
-        return view('leads.index', compact('leads', 'products', 'sources'));
+        // Nomor WA yang bentrok (dipegang >1 sales) — untuk tandai badge di tabel
+        $conflictingPhones = Lead::conflictingPhones();
+
+        return view('leads.index', compact('leads', 'products', 'sources', 'conflictingPhones'));
     }
 
     public function create()

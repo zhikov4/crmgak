@@ -48,6 +48,37 @@ class Lead extends Model
         return self::STATUS_COLORS[$this->status] ?? 'bg-gray-100 text-gray-700';
     }
 
+    /**
+     * Scope: hanya lead yang BENTROK — nomor WA-nya dipegang >1 sales.
+     * Dipakai di halaman khusus & untuk menandai di daftar.
+     */
+    public function scopeConflicting($query)
+    {
+        return $query->whereIn('wa_phone', function ($sub) {
+            $sub->select('wa_phone')
+                ->from('leads')
+                ->whereNotNull('wa_phone')
+                ->where('wa_phone', '!=', '')
+                ->groupBy('wa_phone')
+                ->havingRaw('COUNT(DISTINCT assigned_to) > 1');
+        });
+    }
+
+    /**
+     * Daftar nomor WA yang bentrok (dipakai untuk menandai badge di tabel).
+     * Mengembalikan array nomor WA.
+     */
+    public static function conflictingPhones(): array
+    {
+        return static::query()
+            ->whereNotNull('wa_phone')
+            ->where('wa_phone', '!=', '')
+            ->groupBy('wa_phone')
+            ->havingRaw('COUNT(DISTINCT assigned_to) > 1')
+            ->pluck('wa_phone')
+            ->toArray();
+    }
+
     protected $fillable = [
     'name',
     'phone',

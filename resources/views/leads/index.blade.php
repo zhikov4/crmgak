@@ -79,7 +79,16 @@
             <tbody class="divide-y divide-gray-100">
                 @forelse($leads as $lead)
                 <tr class="hover:bg-gray-50">
-                    <td class="px-4 py-3 font-medium text-gray-800">{{ $lead->name }}</td>
+                    <td class="px-4 py-3 font-medium text-gray-800">
+                        {{ $lead->name }}
+                        @if(in_array($lead->wa_phone, $conflictingPhones ?? []))
+                            <a href="{{ route('leads.conflicting') }}"
+                               title="Nomor ini dipegang lebih dari satu sales"
+                               class="ml-1 inline-block px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700 hover:bg-amber-200">
+                                ⚠ Bentrok
+                            </a>
+                        @endif
+                    </td>
                     <td class="px-4 py-3 text-gray-600">{{ $lead->company ?? '-' }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $lead->phone ?? '-' }}</td>
                     <td class="px-4 py-3 text-gray-600">{{ $lead->source ?? '-' }}</td>

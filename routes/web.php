@@ -70,6 +70,9 @@ Route::middleware(['auth'])->group(function () {
         ));
     })->name('dashboard');
 
+    // Halaman lead bentrok (harus SEBELUM resource agar tidak bentrok dgn leads/{lead})
+    Route::get('leads/conflicting', [\App\Http\Controllers\ConflictingLeadController::class, 'index'])
+        ->name('leads.conflicting');
     Route::resource('leads', LeadController::class);
     Route::resource('projects', ProjectController::class);
 
