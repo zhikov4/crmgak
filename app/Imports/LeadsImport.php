@@ -8,9 +8,11 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 
 class LeadsImport implements ToCollection
 {
-    public array $errors   = [];
-    public int   $imported = 0;
-    public int   $skipped  = 0;
+    public array $errors    = [];
+    public int   $imported  = 0;
+    public int   $skipped   = 0;
+    public int   $duplicates = 0;
+    public array $duplicateDetails = [];
 
     private array $staffCache   = [];
     private array $productCache = [];
@@ -95,6 +97,25 @@ class LeadsImport implements ToCollection
                 $waPhone = $clean;
             }
 
+            // Tanggal masuk (dipakai juga untuk deteksi duplikat)
+            $inputDate = $this->parseDate(
+                $mapped['tanggal masuk'] ?? $mapped['tanggal'] ?? null
+            );
+
+            $productId  = $this->findProductByName($mapped['produk'] ?? null);
+            $assignedTo = $this->findStaffByName($mapped['nama sales'] ?? $mapped['nama marketing'] ?? null);
+
+            // Deteksi duplikat: hanya lewati kalau IDENTIK PENUH
+            // (WA + Produk + Sales + Nama sama). Lead bentrok — calon sama
+            // dipegang sales berbeda — tetap masuk agar bisa ditinjau manajer.
+            if ($waPhone && $this->isDuplicate($waPhone, $productId, $assignedTo, trim((string)$name))) {
+                $this->duplicates++;
+                if (count($this->duplicateDetails) < 50) {
+                    $this->duplicateDetails[] = trim((string)$name) . ' (' . $waPhone . ')';
+                }
+                continue;
+            }
+
             try {
                 Lead::create([
                     'name'              => trim((string)$name),
@@ -105,8 +126,9 @@ class LeadsImport implements ToCollection
                     'status'            => $this->mapStatus($mapped['kategori'] ?? $mapped['status'] ?? null),
                     'notes'             => $mapped['report fu'] ?? $mapped['catatan'] ?? null,
                     'created_by'        => auth()->id(),
-                    'assigned_to'       => $this->findStaffByName($mapped['nama sales'] ?? $mapped['nama marketing'] ?? null),
-                    'product_id'        => $this->findProductByName($mapped['produk'] ?? null),
+                    'assigned_to'       => $assignedTo,
+                    'product_id'        => $productId,
+                    'input_date'        => $inputDate,
                     'interest_type'     => $mapped['minat tipe'] ?? null,
                     'budget_range'      => $mapped['range budget'] ?? null,
                     'location_interest' => $mapped['lokasi minat'] ?? null,
@@ -122,6 +144,22 @@ class LeadsImport implements ToCollection
                 $this->skipped++;
             }
         }
+    }
+
+    /**
+     * Cek apakah lead yang IDENTIK PENUH sudah ada:
+     * WA + Produk + Sales + Nama semuanya sama.
+     * Tujuan: cegah dobel-klik import, TANPA menolak lead bentrok
+     * (calon sama dipegang sales berbeda — itu sengaja dibiarkan masuk
+     *  agar manajer bisa meninjau & menentukan siapa yang menangani).
+     */
+    private function isDuplicate(string $waPhone, ?int $productId, ?int $assignedTo, string $name): bool
+    {
+        return Lead::where('wa_phone', $waPhone)
+            ->where('product_id', $productId)
+            ->where('assigned_to', $assignedTo)
+            ->whereRaw('LOWER(name) = ?', [strtolower($name)])
+            ->exists();
     }
 
     private function mapStatus(?string $status): string
@@ -147,10 +185,28 @@ class LeadsImport implements ToCollection
 
     private function parseDate($value): ?string
     {
-        if (!$value) return null;
+        if ($value === null || $value === '') return null;
+
         try {
-            if ($value instanceof \DateTime) return $value->format('Y-m-d');
-            return \Carbon\Carbon::parse($value)->format('Y-m-d');
+            if ($value instanceof \DateTime) {
+                return $value->format('Y-m-d');
+            }
+
+            // Serial number Excel (mis. 46074) → tanggal.
+            // Excel menghitung hari sejak 1899-12-30.
+            if (is_numeric($value)) {
+                $num = (float) $value;
+                if ($num > 0 && $num < 100000) {
+                    $date = \Carbon\Carbon::createFromTimestamp(
+                        ($num - 25569) * 86400
+                    )->format('Y-m-d');
+                    return $date;
+                }
+            }
+
+            $parsed = \Carbon\Carbon::parse($value)->format('Y-m-d');
+            // Tolak epoch 1970 — itu tanda parse gagal, bukan tanggal asli
+            return $parsed === '1970-01-01' ? null : $parsed;
         } catch (\Exception $e) {
             return null;
         }

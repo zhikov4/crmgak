@@ -58,11 +58,20 @@ class ImportController extends Controller
         Excel::import($import, storage_path('app/private/' . $path));
         session()->forget('import_path');
 
-        $message = "Import selesai! {$import->imported} leads berhasil, {$import->skipped} dilewati.";
+        $message = "Import selesai! {$import->imported} leads berhasil";
+        if ($import->duplicates > 0) {
+            $message .= ", {$import->duplicates} duplikat dilewati";
+        }
+        if ($import->skipped > 0) {
+            $message .= ", {$import->skipped} dilewati (data tidak lengkap)";
+        }
+        $message .= ".";
         if (!empty($import->errors)) {
             $message .= " Errors: " . implode(', ', array_slice($import->errors, 0, 3));
         }
 
-        return redirect()->route('leads.index')->with('success', $message);
+        return redirect()->route('leads.index')
+            ->with('success', $message)
+            ->with('duplicateDetails', $import->duplicateDetails);
     }
 }

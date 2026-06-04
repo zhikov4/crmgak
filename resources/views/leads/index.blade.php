@@ -50,6 +50,16 @@
     @if(session('success'))
         <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
             {{ session('success') }}
+            @if(session('duplicateDetails') && count(session('duplicateDetails')) > 0)
+                <details class="mt-2">
+                    <summary class="cursor-pointer font-medium">Lihat daftar duplikat yang dilewati ({{ count(session('duplicateDetails')) }})</summary>
+                    <ul class="mt-2 ml-4 list-disc text-green-800">
+                        @foreach(session('duplicateDetails') as $dup)
+                            <li>{{ $dup }}</li>
+                        @endforeach
+                    </ul>
+                </details>
+            @endif
         </div>
     @endif
 
