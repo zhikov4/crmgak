@@ -29,8 +29,8 @@
                 <label class="block text-xs text-gray-500 mb-1">Sumber</label>
                 <select name="source" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="">Semua Sumber</option>
-                    @foreach(['instagram','facebook','google','referral','whatsapp','website','other'] as $src)
-                        <option value="{{ $src }}" {{ request('source') == $src ? 'selected' : '' }}>{{ ucfirst($src) }}</option>
+                    @foreach($sources as $src)
+                        <option value="{{ $src }}" {{ request('source') == $src ? 'selected' : '' }}>{{ $src }}</option>
                     @endforeach
                 </select>
             </div>
