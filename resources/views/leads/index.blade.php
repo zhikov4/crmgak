@@ -99,6 +99,12 @@
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 font-medium text-gray-800">
                         {{ $lead->name }}
+                        @if(str_starts_with($lead->name, 'Calon '))
+                            <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-600 font-medium"
+                                  title="Nama belum dilengkapi — klik Edit untuk update">
+                                ! Nama
+                            </span>
+                        @endif
                         @if(in_array($lead->wa_phone, $conflictingPhones ?? []))
                             <a href="{{ route('leads.conflicting') }}"
                                title="Nomor ini dipegang lebih dari satu sales"

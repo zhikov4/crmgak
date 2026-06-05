@@ -60,6 +60,10 @@
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
                             <span class="font-medium text-gray-800 truncate">{{ $lead->name }}</span>
+                            @if(str_starts_with($lead->name, 'Calon '))
+                                <span class="px-1.5 py-0.5 rounded text-xs bg-red-100 text-red-600 font-medium"
+                                      title="Nama belum dilengkapi">! Nama</span>
+                            @endif
                             <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $lead->statusColor() }}">{{ $lead->statusLabel() }}</span>
                         </div>
                         <div class="text-xs text-gray-500 mt-0.5">
