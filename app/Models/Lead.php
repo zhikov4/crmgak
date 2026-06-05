@@ -16,13 +16,13 @@ class Lead extends Model
      * key (disimpan di DB) => label (ditampilkan ke user)
      */
     public const STATUSES = [
-        'no_respon' => 'No Respon',
-        'respon'    => 'Respon',
-        'kirim_pl'  => 'Kirim Price List',
-        'survey'    => 'Survey',
-        'utj'       => 'UTJ',
+        'no_respon' => 'Belum Merespon',
+        'respon'    => 'Sudah Merespon',
+        'kirim_pl'  => 'Penawaran Terkirim',
+        'survey'    => 'Survei Lokasi',
+        'utj'       => 'Tanda Jadi',
         'closing'   => 'Closing',
-        'batal'     => 'Batal',
+        'batal'     => 'Tidak Jadi',
     ];
 
     /** Warna badge per status (kelas Tailwind). */
