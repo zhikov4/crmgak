@@ -31,20 +31,33 @@
         td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; color: #374151; }
         tr:last-child td { border-bottom: none; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
-        .badge-new { background: #dbeafe; color: #1d4ed8; }
-        .badge-contacted { background: #fef3c7; color: #92400e; }
-        .badge-qualified { background: #ede9fe; color: #5b21b6; }
-        .badge-proposal { background: #ffedd5; color: #9a3412; }
+
+        /* Status lead GAK */
+        .badge-no_respon   { background: #f3f4f6; color: #374151; }
+        .badge-respon      { background: #dbeafe; color: #1d4ed8; }
+        .badge-kirim_pl    { background: #ede9fe; color: #5b21b6; }
+        .badge-survey      { background: #fef3c7; color: #92400e; }
+        .badge-utj         { background: #ffedd5; color: #9a3412; }
+        .badge-closing     { background: #dcfce7; color: #14532d; }
+        .badge-batal       { background: #fee2e2; color: #7f1d1d; }
+
+        /* Status pipeline stage (beda dari lead status) */
+        .badge-new         { background: #f3f4f6; color: #374151; }
+        .badge-contacted   { background: #dbeafe; color: #1d4ed8; }
+        .badge-proposal    { background: #ffedd5; color: #9a3412; }
         .badge-negotiation { background: #fce7f3; color: #9d174d; }
-        .badge-won { background: #dcfce7; color: #14532d; }
-        .badge-lost { background: #fee2e2; color: #7f1d1d; }
-        .badge-planning { background: #dbeafe; color: #1d4ed8; }
+        .badge-won         { background: #dcfce7; color: #14532d; }
+        .badge-lost        { background: #fee2e2; color: #7f1d1d; }
+
+        /* Status proyek & prioritas */
+        .badge-planning    { background: #dbeafe; color: #1d4ed8; }
         .badge-in_progress { background: #fef3c7; color: #92400e; }
-        .badge-completed { background: #dcfce7; color: #14532d; }
-        .badge-cancelled { background: #fee2e2; color: #7f1d1d; }
-        .badge-high { background: #fee2e2; color: #7f1d1d; }
-        .badge-medium { background: #fef3c7; color: #92400e; }
-        .badge-low { background: #f3f4f6; color: #374151; }
+        .badge-completed   { background: #dcfce7; color: #14532d; }
+        .badge-cancelled   { background: #fee2e2; color: #7f1d1d; }
+        .badge-high        { background: #fee2e2; color: #7f1d1d; }
+        .badge-medium      { background: #fef3c7; color: #92400e; }
+        .badge-low         { background: #f3f4f6; color: #374151; }
+
         .progress-wrap { display: flex; align-items: center; gap: 6px; }
         .progress-bar { flex: 1; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: #3b82f6; border-radius: 3px; }
@@ -62,6 +75,11 @@
     </style>
 </head>
 <body>
+
+    @php
+        // Label status lead GAK untuk halaman print (tidak bisa pakai method model di sini)
+        $statusLabels = \App\Models\Lead::STATUSES;
+    @endphp
 
     {{-- Tombol Print (hilang saat print) --}}
     <div class="no-print" style="text-align:right; margin-bottom:16px;">
@@ -92,14 +110,14 @@
                 <div class="kpi-sub">{{ $newLeads }} baru bulan ini</div>
             </div>
             <div class="kpi-card green">
-                <div class="kpi-label">Deal Won</div>
+                <div class="kpi-label">Closing</div>
                 <div class="kpi-value">{{ $wonLeads }}</div>
                 <div class="kpi-sub">Rp {{ number_format($wonValue/1000000, 1) }}jt total nilai</div>
             </div>
             <div class="kpi-card yellow">
                 <div class="kpi-label">Conversion Rate</div>
                 <div class="kpi-value">{{ $conversionRate }}%</div>
-                <div class="kpi-sub">{{ $lostLeads }} leads hilang</div>
+                <div class="kpi-sub">{{ $lostLeads }} leads batal</div>
             </div>
             <div class="kpi-card purple">
                 <div class="kpi-label">Total Pipeline</div>
@@ -116,7 +134,7 @@
             @foreach($leadsBySource as $item)
             @php $pct = $totalLeads > 0 ? round(($item->total/$totalLeads)*100) : 0; @endphp
             <div class="source-item">
-                <span style="width:80px; font-weight:500;">{{ ucfirst($item->source ?? 'Lainnya') }}</span>
+                <span style="width:100px; font-weight:500;">{{ $item->source ?? 'Lainnya' }}</span>
                 <div class="source-bar-wrap"><div class="source-bar-fill" style="width:{{ $pct }}%"></div></div>
                 <span style="width:80px; text-align:right; color:#6b7280;">{{ $item->total }} ({{ $pct }}%)</span>
             </div>
@@ -129,7 +147,9 @@
             @foreach($leadsByStatus as $item)
             @php $pct = $totalLeads > 0 ? round(($item->total/$totalLeads)*100) : 0; @endphp
             <div class="source-item">
-                <span class="badge badge-{{ $item->status }}" style="width:80px; text-align:center;">{{ ucfirst($item->status) }}</span>
+                <span class="badge badge-{{ $item->status }}" style="width:90px; text-align:center;">
+                    {{ $statusLabels[$item->status] ?? $item->status }}
+                </span>
                 <div class="source-bar-wrap"><div class="source-bar-fill" style="width:{{ $pct }}%"></div></div>
                 <span style="width:80px; text-align:right; color:#6b7280;">{{ $item->total }} ({{ $pct }}%)</span>
             </div>
@@ -153,7 +173,11 @@
                 @foreach($leadsByStatus as $item)
                 @php $pct = $totalLeads > 0 ? round(($item->total/$totalLeads)*100) : 0; @endphp
                 <tr>
-                    <td><span class="badge badge-{{ $item->status }}">{{ ucfirst($item->status) }}</span></td>
+                    <td>
+                        <span class="badge badge-{{ $item->status }}">
+                            {{ $statusLabels[$item->status] ?? $item->status }}
+                        </span>
+                    </td>
                     <td style="text-align:center; font-weight:600;">{{ $item->total }}</td>
                     <td>
                         <div class="progress-wrap">
