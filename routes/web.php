@@ -187,7 +187,17 @@ Route::middleware(['auth'])->group(function () {
         ));
     })->name('reports.print');
 
-    Route::get('/import', [ImportController::class, 'index'])->name('import.index');
+    Route::get('/reports/export', function () {
+        $user  = auth()->user();
+        $bulan = request('bulan', now()->format('Y-m'));
+
+        $filename = 'laporan-gak-crm-' . $bulan . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ReportExport($bulan, $user),
+            $filename
+        );
+    })->name('reports.export');
     Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
 

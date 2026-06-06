@@ -17,6 +17,10 @@
             class="bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-900 flex items-center gap-2">
                 🖨️ Print / PDF
             </a>
+            <a href="{{ route('reports.export', ['bulan' => $bulan]) }}"
+               class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 flex items-center gap-2">
+                📥 Export Excel
+            </a>
         </div>
     </div>
 
