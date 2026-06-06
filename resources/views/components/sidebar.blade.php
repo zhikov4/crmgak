@@ -66,6 +66,9 @@
         <a href="{{ route('leads.conflicting') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('leads/conflicting') ? 'bg-gray-700' : '' }}">
             <span>⚠️</span><span class="text-sm">Lead Bentrok</span>
         </a>
+        <a href="{{ route('leads.archived') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('leads/archived') ? 'bg-gray-700' : '' }}">
+            <span>🗂️</span><span class="text-sm">Arsip Leads</span>
+        </a>
         @endif
         <a href="/products-list" class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 {{ request()->is('products-list*') ? 'bg-gray-700' : '' }}">
             <span>🏷️</span><span class="text-sm">Produk</span>

@@ -169,9 +169,65 @@ class LeadController extends Controller
     {
         $this->authorize('delete', $lead);
 
-        $lead->delete();
+        $lead->delete(); // soft delete — data masuk arsip, bisa dipulihkan
 
-        return redirect()->route('leads.index')->with('success', 'Lead berhasil dihapus!');
+        return redirect()->route('leads.index')
+            ->with('success', "Lead \"{$lead->name}\" dipindahkan ke arsip. Bisa dipulihkan oleh manajer/direktur.");
+    }
+
+    /**
+     * Pulihkan lead yang sudah diarsip.
+     * Hanya manajer & direktur yang boleh.
+     */
+    public function restore(int $id)
+    {
+        $user = auth()->user();
+        abort_unless($user->isManajer() || $user->isDirektur(), 403);
+
+        $lead = Lead::onlyTrashed()->findOrFail($id);
+        $lead->restore();
+
+        return redirect()->route('leads.archived')
+            ->with('success', "Lead \"{$lead->name}\" berhasil dipulihkan.");
+    }
+
+    /**
+     * Hapus permanen lead dari arsip.
+     * Hanya direktur yang boleh.
+     */
+    public function forceDelete(int $id)
+    {
+        $user = auth()->user();
+        abort_unless($user->isDirektur(), 403);
+
+        $lead = Lead::onlyTrashed()->findOrFail($id);
+        $name = $lead->name;
+        $lead->forceDelete();
+
+        return redirect()->route('leads.archived')
+            ->with('success', "Lead \"{$name}\" dihapus permanen.");
+    }
+
+    /**
+     * Halaman arsip — lead yang sudah dihapus.
+     * Hanya manajer & direktur.
+     */
+    public function archived()
+    {
+        $user = auth()->user();
+        abort_unless($user->isManajer() || $user->isDirektur(), 403);
+
+        $leads = Lead::onlyTrashed()
+            ->with('assignedTo', 'product')
+            ->when($user->isManajer(), function ($q) use ($user) {
+                $ids   = $user->staffMembers()->pluck('id')->toArray();
+                $ids[] = $user->id;
+                $q->whereIn('assigned_to', $ids);
+            })
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(20);
+
+        return view('leads.archived', compact('leads'));
     }
 
     /**

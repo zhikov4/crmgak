@@ -82,6 +82,12 @@ Route::middleware(['auth'])->group(function () {
     // Halaman lead bentrok (harus SEBELUM resource agar tidak bentrok dgn leads/{lead})
     Route::get('leads/conflicting', [\App\Http\Controllers\ConflictingLeadController::class, 'index'])
         ->name('leads.conflicting');
+    Route::get('leads/archived', [LeadController::class, 'archived'])
+        ->name('leads.archived');
+    Route::post('leads/{id}/restore', [LeadController::class, 'restore'])
+        ->name('leads.restore');
+    Route::delete('leads/{id}/force-delete', [LeadController::class, 'forceDelete'])
+        ->name('leads.force-delete');
     Route::post('leads/{lead}/followed-up', [LeadController::class, 'markFollowedUp'])
         ->name('leads.followed-up');
     Route::resource('leads', LeadController::class);
