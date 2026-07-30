@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\ScopesByRole;
+use App\Models\Activity;
 
 class Lead extends Model
 {
@@ -101,6 +102,12 @@ class Lead extends Model
                 $q->whereNull('follow_up_date')
                   ->orWhereDate('follow_up_date', '<=', $threshold);
             });
+    }
+
+    public function activities(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    {
+        return $this->morphMany(Activity::class, 'subject')
+            ->orderBy('created_at', 'desc');
     }
 
     protected $fillable = [
