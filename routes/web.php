@@ -204,6 +204,7 @@ Route::middleware(['auth'])->group(function () {
             $filename
         );
     })->name('reports.export');
+    Route::get('/import', [ImportController::class, 'index'])->name('import.index');
     Route::post('/import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('/import/process', [ImportController::class, 'import'])->name('import.process');
 

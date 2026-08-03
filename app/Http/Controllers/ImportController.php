@@ -28,7 +28,9 @@ class ImportController extends Controller
         foreach ($rows as $i => $row) {
             foreach ($row as $cell) {
                 if ($cell && (
+                    stripos((string)$cell, 'nama_user') !== false ||
                     stripos((string)$cell, 'nama user') !== false ||
+                    stripos((string)$cell, 'nama_customer') !== false ||
                     stripos((string)$cell, 'nama customer') !== false ||
                     stripos((string)$cell, 'nama marketing') !== false
                 )) {

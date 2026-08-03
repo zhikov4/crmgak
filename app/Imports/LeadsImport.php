@@ -51,7 +51,9 @@ class LeadsImport implements ToCollection
             $rowValues = $row->toArray();
             foreach ($rowValues as $cell) {
                 if ($cell && (
+                    stripos((string)$cell, 'nama_user') !== false ||
                     stripos((string)$cell, 'nama user') !== false ||
+                    stripos((string)$cell, 'nama_customer') !== false ||
                     stripos((string)$cell, 'nama customer') !== false ||
                     stripos((string)$cell, 'nama marketing') !== false
                 )) {
@@ -77,13 +79,13 @@ class LeadsImport implements ToCollection
                 $mapped[$header] = $rowData[$i] ?? null;
             }
 
-            $name = $mapped['nama user'] ?? $mapped['nama customer'] ?? null;
+            $name = $mapped['nama_user'] ?? $mapped['nama user'] ?? $mapped['nama_customer'] ?? $mapped['nama customer'] ?? null;
             if (empty($name)) {
                 $this->skipped++;
                 continue;
             }
 
-            $phone = $mapped['no hp'] ?? $mapped['nomor wa/hp'] ?? $mapped['no_hp'] ?? null;
+            $phone = $mapped['no_hp'] ?? $mapped['no hp'] ?? $mapped['nomor wa/hp'] ?? null;
             $phone = $phone ? (string)$phone : null;
 
             $waPhone = null;
@@ -103,7 +105,7 @@ class LeadsImport implements ToCollection
             );
 
             $productId  = $this->findProductByName($mapped['produk'] ?? null);
-            $assignedTo = $this->findStaffByName($mapped['nama sales'] ?? $mapped['nama marketing'] ?? null);
+            $assignedTo = $this->findStaffByName($mapped['nama_sales'] ?? $mapped['nama sales'] ?? $mapped['nama_marketing'] ?? $mapped['nama marketing'] ?? null);
 
             // Deteksi duplikat: hanya lewati kalau IDENTIK PENUH
             // (WA + Produk + Sales + Nama sama). Lead bentrok — calon sama
