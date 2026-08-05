@@ -1,9 +1,10 @@
 FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libpq-dev libpng-dev libjpeg-dev libfreetype6-dev nginx supervisor \
+    git curl zip unzip libpq-dev libpng-dev libjpeg-dev \
+    libfreetype6-dev libzip-dev zlib1g-dev nginx supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql pcntl gd bcmath \
+    && docker-php-ext-install pdo pdo_pgsql pcntl gd bcmath zip \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
