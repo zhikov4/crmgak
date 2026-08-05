@@ -1,9 +1,9 @@
-FROM php:8.2-fpm
+FROM php:8.3-fpm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpq-dev nginx supervisor \
-    && docker-php-ext-install pdo pdo_pgsql pcntl \
+    && docker-php-ext-install pdo pdo_pgsql pcntl gd bcmath \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
