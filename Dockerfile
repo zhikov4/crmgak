@@ -14,7 +14,7 @@ WORKDIR /var/www
 
 COPY . .
 
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
+RUN COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 RUN npm ci && npm run build
 
